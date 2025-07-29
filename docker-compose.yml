@@ -20,7 +20,7 @@ services:
       - DATABASE_PORT=3306
       - DATABASE_NAME=alto
       - DATABASE_USER=root_user
-      - DATABASE_PASSWORD=Yf7@qP9!xL#2wM3z
+      - DATABASE_PASSWORD=Yf7@qP9!xLm2wM3z
 
 
   alto-mysql:
@@ -28,10 +28,10 @@ services:
     container_name: alto-mysql
     hostname: alto-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: Yf7@qP9!xL#2wM3z
+      MYSQL_ROOT_PASSWORD: Yf7@qP9!xLm2wM3z
       MYSQL_DATABASE: alto
       MYSQL_USER: root_user
-      MYSQL_PASSWORD: Yf7@qP9!xL#2wM3z
+      MYSQL_PASSWORD: Yf7@qP9!xLm2wM3z
     networks:
       - alto-network
     ports:
