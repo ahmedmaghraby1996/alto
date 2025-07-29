@@ -140,7 +140,7 @@ export class AuthenticationController {
   @Post('register-driver')
   async registerDriver(
     @Body() req: RegisterDriverRequest,
-    @UploadedFiles(new UploadValidator().build())
+    @UploadedFiles()
     files: {
       avatarFile?: Express.Multer.File[];
       driving_license_image?: Express.Multer.File[];
