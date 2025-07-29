@@ -109,7 +109,7 @@ export class RegisterUserTransaction extends BaseTransaction<
 
           // save image
           const path = await this.storageManager.store(
-            { buffer: resizedImage, originalname: req.avatarFile.originalname },
+            { buffer: resizedImage, originalname: req.driving_license_image.originalname },
             { path: 'driving_licenses' },
           );
 
@@ -131,7 +131,7 @@ export class RegisterUserTransaction extends BaseTransaction<
 
           // save image
           const path = await this.storageManager.store(
-            { buffer: resizedImage, originalname: req.avatarFile.originalname },
+            { buffer: resizedImage, originalname: req.vehicle_registration_image.originalname },
             { path: 'vehicle_registrations' },
           );
 
