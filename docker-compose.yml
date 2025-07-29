@@ -28,10 +28,10 @@ services:
     container_name: alto-mysql
     hostname: alto-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: Yf7@qP9!xL#2wM3z
       MYSQL_DATABASE: alto
       MYSQL_USER: root_user
-      MYSQL_PASSWORD: password
+      MYSQL_PASSWORD: Yf7@qP9!xL#2wM3z
     networks:
       - alto-network
     ports:
