@@ -2,8 +2,6 @@ import { Otp } from '../entities/auth/otp.entity';
 import { User } from '../entities/user/user.entity';
 import { Address } from '../entities/user/address.entity';
 
-
-
 import { Transaction } from '../entities/wallet/transaction.entity';
 import { Wallet } from '../entities/wallet/wallet.entity';
 import { NotificationEntity } from '../entities/notification/notification.entity';
@@ -15,21 +13,17 @@ import { ContactUs } from '../entities/contact-us/contact-us.entity';
 import { City } from '../entities/city/city.entity';
 import { Country } from '../entities/country/country.entity';
 
-
 import { Banar } from '../entities/banar/banar.entity';
 
 import { Chat } from '../entities/chat/chat.entity';
 import { Message } from '../entities/chat/messages.entity';
 import { Driver } from '../entities/driver/driver.entity';
 
-
-
-
 export const DB_ENTITIES = [
   User,
   Address,
   Otp,
-Country,
+  Country,
   Transaction,
   Driver,
   Wallet,
@@ -40,13 +34,11 @@ Country,
   FaqQuestion,
   StaticPage,
   ContactUs,
-    City,
-    Country,
+  City,
+  Country,
 
-
-    Chat,
-    Message
-
+  Chat,
+  Message,
 ];
 
 export const DB_VIEWS = [];
