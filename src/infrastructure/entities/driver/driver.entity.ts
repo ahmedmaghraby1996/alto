@@ -3,13 +3,17 @@ import { User } from '../user/user.entity';
 import { Column, Entity, ManyToMany, ManyToOne, OneToMany } from 'typeorm';
 import { City } from '../city/city.entity';
 import { DriverStatus } from 'src/infrastructure/data/enums/driver-status.enum';
+import { TruckType } from '../truck/truck-type.entity';
 @Entity()
 export class Driver extends AuditableEntity {
   @ManyToOne(() => User)
   user: User;
 
+  @ManyToOne(() => TruckType)
+  vehicle_type: TruckType;
+
   @Column({ nullable: true })
-  vehicle_type: string;
+  vehicle_type_id: string;
 
   @Column({ nullable: true })
   vehicle_registration_number: string;
@@ -20,7 +24,7 @@ export class Driver extends AuditableEntity {
   @Column({ nullable: true })
   driving_license_image: string;
 
-    @Column({
+  @Column({
     type: 'enum',
     default: DriverStatus.PENDING,
     enum: DriverStatus,

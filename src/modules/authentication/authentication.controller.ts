@@ -57,6 +57,7 @@ import {
 } from './dto/requests/create-city.request';
 
 import { City } from 'src/infrastructure/entities/city/city.entity';
+import { toUrl } from 'src/core/helpers/file.helper';
 
 @ApiTags(Router.Auth.ApiTag)
 @Controller(Router.Auth.Base)
@@ -233,6 +234,30 @@ export class AuthenticationController {
     await this.resortCities();
     return new ActionResponse(city);
   }
+
+  @Get('vehicle-sizes')
+  async getVehicleSizes() {
+    const vehicleSizes = await this.authService.getTruckSizes();
+    const result = vehicleSizes.map((item) => {
+      item.icon= toUrl(item.icon);
+      return item
+    })
+    const res = this._i18nResponse.entity(result);
+    return new ActionResponse(res);
+  }
+
+  @Get('vehicle-types/:id')
+  async getVehicleTypes(@Param('id') id: string) {
+    const vehicleTypes = await this.authService.getTruckTypes(id);
+    const result = vehicleTypes.map((item) => {
+      item.icon= toUrl(item.icon);
+      return item
+    })
+    const res = this._i18nResponse.entity(result);
+    return new ActionResponse(res);
+  }
+
+
 
   async resortCities() {
     await this.cityRepository.query(`

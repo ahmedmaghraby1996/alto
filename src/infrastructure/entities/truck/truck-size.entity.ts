@@ -18,6 +18,9 @@ export class TruckSize {
   @Column()
   min_length_m: number;
 
+  @Column({nullable: true})
+  icon: string
+
   @Column()
   max_length_m: number;
 

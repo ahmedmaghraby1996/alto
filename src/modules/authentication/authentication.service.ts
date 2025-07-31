@@ -28,6 +28,8 @@ import { access } from 'fs';
 import { ResetPasswordRequest } from './dto/requests/reset-password';
 import { RequestResetPassword } from './dto/requests/request-reset-password';
 import { SendEmailService } from '../send-email/send-email.service';
+import { TruckSize } from 'src/infrastructure/entities/truck/truck-size.entity';
+import { TruckType } from 'src/infrastructure/entities/truck/truck-type.entity';
 
 
 
@@ -50,6 +52,8 @@ export class AuthenticationService {
     @Inject(SendEmailService) private readonly sendEmailService: SendEmailService,
 
     @Inject(ConfigService) private readonly _config: ConfigService,
+    @InjectRepository(TruckSize) private readonly truckSizeRepo: Repository<TruckSize>,
+    @InjectRepository(TruckType) private readonly truckTypeRepo: Repository<TruckType>,
   ) {}
 
   async validateUser(req: LoginRequest): Promise<any> {
@@ -69,6 +73,14 @@ export class AuthenticationService {
       return user;
     }
     return null;
+  }
+
+  async getTruckTypes(id:string) {
+    return await this.truckTypeRepo.find({where:{size_id:id}});
+  }
+
+  async getTruckSizes() {
+    return await this.truckSizeRepo.find();
   }
 
   async login(user: any) {

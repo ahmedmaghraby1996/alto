@@ -59,7 +59,7 @@ export class RegisterRequest {
 export class RegisterDriverRequest extends RegisterRequest {
   @ApiProperty()
   @IsString()
-  vehicle_type: string;
+  vehicle_type_id: string;
 
   @ApiProperty()
   @IsOptional()
