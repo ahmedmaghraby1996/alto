@@ -6,13 +6,12 @@ import { Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 export  class TruckSeeder implements Seeder {
-    truckSizeRepo: any;
-    truckTypeRepo: any;
+  
     constructor(
         @InjectRepository(TruckType)
-        private readonly truckType: Repository<TruckType>,
+        private readonly truckTypeRepo: Repository<TruckType>,
         @InjectRepository(TruckSize)
-        private readonly truckSize: Repository<TruckSize>,
+        private readonly truckSizeRepo: Repository<TruckSize>,
     ){}
   async seed(): Promise<void> {
     const sizes = [
