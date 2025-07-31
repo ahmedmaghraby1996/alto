@@ -18,6 +18,8 @@ import { Banar } from '../entities/banar/banar.entity';
 import { Chat } from '../entities/chat/chat.entity';
 import { Message } from '../entities/chat/messages.entity';
 import { Driver } from '../entities/driver/driver.entity';
+import { TruckSize } from '../entities/truck/truck-size.entity';
+import { TruckType } from '../entities/truck/truck-type.entity';
 
 export const DB_ENTITIES = [
   User,
@@ -29,6 +31,8 @@ export const DB_ENTITIES = [
   Wallet,
   NotificationEntity,
   Banar,
+  TruckSize,
+  TruckType,
 
   SuggestionsComplaints,
   FaqQuestion,
