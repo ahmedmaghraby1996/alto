@@ -2,9 +2,9 @@ import { TruckType } from 'src/infrastructure/entities/truck/truck-type.entity';
 import { DataSource, Repository } from 'typeorm';
 import { Seeder } from 'nestjs-seeder';
 import { TruckSize } from 'src/infrastructure/entities/truck/truck-size.entity';
-import { Inject } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-
+@Injectable()
 export  class TruckSeeder implements Seeder {
   
     constructor(
