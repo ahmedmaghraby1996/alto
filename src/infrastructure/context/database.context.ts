@@ -21,6 +21,7 @@ import { Driver } from '../entities/driver/driver.entity';
 import { TruckSize } from '../entities/truck/truck-size.entity';
 import { TruckType } from '../entities/truck/truck-type.entity';
 import { Order } from '../entities/order/order.entity';
+import { PackageType } from '../entities/order/package-type.entity';
 
 export const DB_ENTITIES = [
   User,
@@ -35,6 +36,7 @@ export const DB_ENTITIES = [
   TruckSize,
   TruckType,
   Order,
+  PackageType,
 
   SuggestionsComplaints,
   FaqQuestion,

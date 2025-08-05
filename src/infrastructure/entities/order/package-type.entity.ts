@@ -6,7 +6,6 @@ export class PackageType extends AuditableEntity {
   name_ar: string;
   @Column()
   name_en: string;
-
   @Column({ nullable: true })
   icon: string;
 }
