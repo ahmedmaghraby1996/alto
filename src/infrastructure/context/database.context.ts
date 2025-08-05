@@ -20,6 +20,7 @@ import { Message } from '../entities/chat/messages.entity';
 import { Driver } from '../entities/driver/driver.entity';
 import { TruckSize } from '../entities/truck/truck-size.entity';
 import { TruckType } from '../entities/truck/truck-type.entity';
+import { Order } from '../entities/order/order.entity';
 
 export const DB_ENTITIES = [
   User,
@@ -33,6 +34,7 @@ export const DB_ENTITIES = [
   Banar,
   TruckSize,
   TruckType,
+  Order,
 
   SuggestionsComplaints,
   FaqQuestion,

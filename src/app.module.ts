@@ -10,6 +10,7 @@ import { CoreModule } from './core/core.module';
 import { FileModule } from './modules/file/file.module';
 
 import { NotificationModule } from './modules/notification/notification.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { NotificationModule } from './modules/notification/notification.module';
     IntegrationModule,      // !Global
     UserModule,             // !Global
     AuthenticationModule,   // !Global
-    FileModule,              // !Global
+    FileModule, OrderModule,              // !Global
   
   
   ],

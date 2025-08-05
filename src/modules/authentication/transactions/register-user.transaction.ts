@@ -93,6 +93,12 @@ export class RegisterUserTransaction extends BaseTransaction<
           driving_license_number: req.driving_license_number,
           status: DriverStatus.PENDING,
         });
+        if (req.cities) {
+          const cities = await context.find(City, {
+            where: { id: In(req.cities) },
+          });
+          driver.cities = cities;
+        }
         // handle images
         if (req.driving_license_image) {
           // resize image to 300x300
@@ -109,7 +115,10 @@ export class RegisterUserTransaction extends BaseTransaction<
 
           // save image
           const path = await this.storageManager.store(
-            { buffer: resizedImage, originalname: req.driving_license_image.originalname },
+            {
+              buffer: resizedImage,
+              originalname: req.driving_license_image.originalname,
+            },
             { path: 'driving_licenses' },
           );
 
@@ -131,7 +140,10 @@ export class RegisterUserTransaction extends BaseTransaction<
 
           // save image
           const path = await this.storageManager.store(
-            { buffer: resizedImage, originalname: req.vehicle_registration_image.originalname },
+            {
+              buffer: resizedImage,
+              originalname: req.vehicle_registration_image.originalname,
+            },
             { path: 'vehicle_registrations' },
           );
 

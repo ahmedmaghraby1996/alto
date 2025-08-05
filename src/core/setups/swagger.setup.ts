@@ -1,6 +1,8 @@
 import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Order } from 'src/infrastructure/entities/order/order.entity';
+import { AddressModule } from 'src/modules/address/address.module';
 
 import { AuthenticationModule } from 'src/modules/authentication/authentication.module';
 import { BanarModule } from 'src/modules/banar/banar.module';
@@ -16,6 +18,7 @@ import { SuggestionsComplaintsModule } from 'src/modules/suggestions-complaints/
 
 import { TransactionModule } from 'src/modules/transaction/transaction.module';
 import { UserModule } from 'src/modules/user/user.module';
+import { OrderModule } from 'src/order/order.module';
 
 export default (app: INestApplication, config: ConfigService) => {
   const operationIdFactory = (controllerKey: string, methodKey: string) =>
@@ -51,6 +54,8 @@ export default (app: INestApplication, config: ConfigService) => {
 
       FileModule,
       BanarModule,
+      OrderModule,
+      AddressModule
   
       // TransactionModule,
     ],

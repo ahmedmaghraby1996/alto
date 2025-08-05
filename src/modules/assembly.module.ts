@@ -13,6 +13,7 @@ import { SendEmailModule } from './send-email/send-email.module';
 
 import { FileModule } from './file/file.module';
 import { BanarModule } from './banar/banar.module';
+import { AddressModule } from './address/address.module';
 
 
 @Module({
@@ -24,6 +25,7 @@ import { BanarModule } from './banar/banar.module';
     FaqModule,
     SendEmailModule,
     TransactionModule,
+    AddressModule,
 
     FileModule,
     BanarModule,
