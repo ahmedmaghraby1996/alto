@@ -4,6 +4,7 @@ import { Column, Entity, ManyToMany, ManyToOne, OneToMany } from 'typeorm';
 import { City } from '../city/city.entity';
 import { DriverStatus } from 'src/infrastructure/data/enums/driver-status.enum';
 import { TruckType } from '../truck/truck-type.entity';
+import { IDType } from 'src/infrastructure/data/enums/id-type.enum';
 @Entity()
 export class Driver extends AuditableEntity {
   @ManyToOne(() => User)
@@ -23,6 +24,12 @@ export class Driver extends AuditableEntity {
 
   @Column({ nullable: true })
   driving_license_image: string;
+
+  @Column({ nullable: true })
+  id_number: string;
+
+  @Column({ enum:[IDType.NATIONAL_ID,IDType.RESIDENCE_PERMIT],default:IDType.NATIONAL_ID })
+  id_type: IDType;
 
   @Column({
     type: 'enum',

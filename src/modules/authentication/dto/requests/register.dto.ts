@@ -11,6 +11,7 @@ import {
 import { Unique } from 'src/core/validators/unique-constraints.validator';
 import { AcademicStage } from 'src/infrastructure/data/enums/academic-stage.enum';
 import { Gender } from 'src/infrastructure/data/enums/gender.enum';
+import { IDType } from 'src/infrastructure/data/enums/id-type.enum';
 import { Role } from 'src/infrastructure/data/enums/role.enum';
 
 
@@ -66,8 +67,15 @@ export class RegisterDriverRequest extends RegisterRequest {
   @IsString()
   vehicle_registration_number: string;
 
-  @ApiProperty()
+  @ApiProperty({ enum: IDType , required: true })
+  @IsEnum(IDType)
+  id_type: IDType;
 
+  @ApiProperty()
+  @IsString()
+  id_number: string;
+
+  @ApiProperty()
   @IsString()
   driving_license_number: string;
 
@@ -76,7 +84,6 @@ export class RegisterDriverRequest extends RegisterRequest {
   driving_license_image: Express.Multer.File;
 
   @ApiProperty({ type: 'file' })
-  
   vehicle_registration_image: Express.Multer.File;
 
   //cities: string[];

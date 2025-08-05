@@ -88,6 +88,8 @@ export class RegisterUserTransaction extends BaseTransaction<
       if (req.role == Role.DRIVER) {
         const driver = new Driver({
           user: savedUser,
+          id_number: req.id_number,
+          id_type: req.id_type,
           vehicle_type_id: req.vehicle_type_id,
           vehicle_registration_number: req.vehicle_registration_number,
           driving_license_number: req.driving_license_number,
