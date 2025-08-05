@@ -28,9 +28,12 @@ export class Driver extends AuditableEntity {
   @Column({ nullable: true })
   id_number: string;
 
-  @Column({ enum: IDType,default:IDType.NATIONAL_ID })
-  id_type: IDType;
-
+@Column({
+  type: 'enum',
+  enum: IDType,
+  default: IDType.NATIONAL_ID,
+})
+id_type: IDType;
   @Column({
     type: 'enum',
     default: DriverStatus.PENDING,
