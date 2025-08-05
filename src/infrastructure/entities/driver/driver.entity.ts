@@ -28,7 +28,7 @@ export class Driver extends AuditableEntity {
   @Column({ nullable: true })
   id_number: string;
 
-  @Column({ enum:[IDType.NATIONAL_ID,IDType.RESIDENCE_PERMIT],default:IDType.NATIONAL_ID })
+  @Column({ enum: IDType,default:IDType.NATIONAL_ID })
   id_type: IDType;
 
   @Column({
