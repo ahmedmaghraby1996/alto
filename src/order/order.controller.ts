@@ -38,11 +38,8 @@ export class OrderController {
   @Get('get-package-types')
   async getPackageTypes() {
     const types = await this.orderService.getPackageTypes();
-    const result = types.map((type) => {
-      type.icon = toUrl(type.icon);
-      return type;
-    });
-    const res = this._i18nResponse.entity(result);
+
+    const res = this._i18nResponse.entity(types);
     return new ActionResponse(res);
   }
 
