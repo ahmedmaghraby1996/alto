@@ -1,10 +1,25 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { OrderService } from './order.service';
 import { ActionResponse } from 'src/core/base/responses/action.response';
 import { CreateOrderDto } from './dto/request/create-order.dto';
 import { ApiTags, ApiHeader, ApiBearerAuth } from '@nestjs/swagger';
 import { Router } from 'express';
 import { JwtAuthGuard } from 'src/modules/authentication/guards/jwt-auth.guard';
+import { PaginatedRequest } from 'src/core/base/requests/paginated.request';
+import { PaginatedResponse } from 'src/core/base/responses/paginated.response';
+import { CreateOfferDto } from './dto/request/create-offer.dto';
+import { Roles } from 'src/modules/authentication/guards/roles.decorator';
+import { Role } from 'src/infrastructure/data/enums/role.enum';
+import { toUrl } from 'src/core/helpers/file.helper';
+import { I18nResponse } from 'src/core/helpers/i18n.helper';
 @ApiTags('Order')
 @ApiHeader({
   name: 'Accept-Language',
@@ -15,10 +30,39 @@ import { JwtAuthGuard } from 'src/modules/authentication/guards/jwt-auth.guard';
 @UseGuards(JwtAuthGuard)
 @Controller('order')
 export class OrderController {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(
+    private readonly orderService: OrderService,
+    @Inject(I18nResponse) private readonly _i18nResponse: I18nResponse,
+  ) {}
+
+  @Get('get-package-types')
+  async getPackageTypes() {
+    const types = await this.orderService.getPackageTypes();
+    const result = types.map((type) => {
+      type.icon = toUrl(type.icon);
+      return type;
+    });
+    const res = this._i18nResponse.entity(result);
+    return new ActionResponse(res);
+  }
+
   @Post('create')
   async create(@Body() req: CreateOrderDto) {
     return new ActionResponse(await this.orderService.create(req));
+  }
+
+  @Get()
+  async getAll(@Query() query: PaginatedRequest) {
+    const orders = await this.orderService.findAll(query);
+    const total = await this.orderService.count(query);
+
+    return new PaginatedResponse(orders, { meta: { total, ...query } });
+  }
+
+  @Roles(Role.DRIVER)
+  @Post('create-offer')
+  async createOffer(@Body() req: CreateOfferDto) {
+    return new ActionResponse(await this.orderService.createOffer(req));
   }
 
   // @Get()

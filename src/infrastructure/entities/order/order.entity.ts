@@ -1,10 +1,11 @@
 import { AuditableEntity } from 'src/infrastructure/base/auditable.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { TruckType } from '../truck/truck-type.entity';
 import { PackageType } from './package-type.entity';
 import { Address } from '../user/address.entity';
 import { OrderStatus } from 'src/infrastructure/data/enums/order-status.enumt';
 import { User } from '../user/user.entity';
+import { OrderOffer } from './order-offer.entity';
 @Entity('order')
 export class Order extends AuditableEntity {
 
@@ -23,8 +24,10 @@ export class Order extends AuditableEntity {
 
   @Column()
   trucks_count: number;
+  @OneToMany(()=>OrderOffer,orderOffer=>orderOffer.order)
+  offers:OrderOffer[]
 
-  @Column()
+  @Column({precision:10,scale:2 ,default:0})
   package_price: number;
 
   @ManyToOne(() => PackageType)

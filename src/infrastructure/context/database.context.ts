@@ -22,6 +22,8 @@ import { TruckSize } from '../entities/truck/truck-size.entity';
 import { TruckType } from '../entities/truck/truck-type.entity';
 import { Order } from '../entities/order/order.entity';
 import { PackageType } from '../entities/order/package-type.entity';
+import { OfferStatus } from '../data/enums/order-status.enumt';
+import { OrderOffer } from '../entities/order/order-offer.entity';
 
 export const DB_ENTITIES = [
   User,
@@ -37,7 +39,7 @@ export const DB_ENTITIES = [
   TruckType,
   Order,
   PackageType,
-
+  OrderOffer,
   SuggestionsComplaints,
   FaqQuestion,
   StaticPage,

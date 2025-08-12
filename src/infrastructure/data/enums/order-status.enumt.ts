@@ -4,3 +4,9 @@ export enum OrderStatus {
     COMPLETED = 'completed',
     CANCELLED = 'cancelled'
 }
+
+export enum OfferStatus {
+    PENDING = 'pending',
+    ACCEPTED = 'accepted',
+    REJECTED = 'rejected'
+}
