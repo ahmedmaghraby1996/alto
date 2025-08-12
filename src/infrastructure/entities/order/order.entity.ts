@@ -27,8 +27,8 @@ export class Order extends AuditableEntity {
   @OneToMany(()=>OrderOffer,orderOffer=>orderOffer.order)
   offers:OrderOffer[]
 
-  @Column({precision:10,scale:2 ,default:0})
-  package_price: number;
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+package_price: number;
 
   @ManyToOne(() => PackageType)
   @JoinColumn({ name: 'package_type' })
