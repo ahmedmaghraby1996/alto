@@ -25,7 +25,7 @@ export class OrderService  extends BaseService<Order> {
     super(order_repo);
   }
 
-  async create(dto: CreateOrderDto): Promise<Order> {
+  async createOrder(dto: CreateOrderDto): Promise<Order> {
     const order = plainToInstance(Order, dto);
     return this.order_repo.save({
       ...order,

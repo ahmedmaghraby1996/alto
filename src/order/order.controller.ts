@@ -45,7 +45,7 @@ export class OrderController {
 
   @Post('create')
   async create(@Body() req: CreateOrderDto) {
-    return new ActionResponse(await this.orderService.create(req));
+    return new ActionResponse(await this.orderService.createOrder(req));
   }
 
   @Get()

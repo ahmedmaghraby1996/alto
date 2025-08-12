@@ -26,7 +26,7 @@ export class CreateOrderDto {
 
   @ApiProperty({ example: 'uuid-of-package-type' })
   @IsUUID()
-  package_type: string;
+  package_type_id: string;
 
   @ApiProperty({ example: '5' })
   @IsString()
