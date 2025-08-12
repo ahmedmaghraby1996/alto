@@ -23,6 +23,12 @@ export class TruckType {
   @Column({ nullable: true })
   icon: string;
 
+  @Column({ nullable: true })
+  description_ar: string;
+
+  @Column({ nullable: true })
+  description_en: string;
+
   @ManyToOne(() => TruckSize, (size) => size.types)
   @JoinColumn({ name: 'size_id' })
   size: TruckSize;
