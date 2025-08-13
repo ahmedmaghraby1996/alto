@@ -7,6 +7,8 @@ import {
   IsBoolean,
   Min,
   Max,
+  IsLatitude,
+  IsLongitude,
 } from 'class-validator';
 
 export class CreateOrderDto {
@@ -39,11 +41,27 @@ export class CreateOrderDto {
 
   @ApiProperty()
   @IsString()
-  pickup_address_id: string;
+  pickup_address: string;
+
+  @ApiProperty()
+  @IsLatitude()
+  pickup_latitude: number;
+
+  @ApiProperty()
+ @IsLongitude()
+  pickup_longitude: number;
 
   @ApiProperty()
   @IsString()
-  delivery_address_id: string;
+  delivery_address: string;
+
+  @ApiProperty()
+  @IsLatitude()
+  delivery_latitude: number;
+
+  @ApiProperty()
+  @IsLongitude()
+  delivery_longitude: number;
 
 
 

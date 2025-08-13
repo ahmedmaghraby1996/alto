@@ -8,7 +8,6 @@ import { User } from '../user/user.entity';
 import { OrderOffer } from './order-offer.entity';
 @Entity('order')
 export class Order extends AuditableEntity {
-
   @ManyToOne(() => User, (user) => user.orders)
   @JoinColumn({ name: 'user_id' })
   user: User;
@@ -20,15 +19,15 @@ export class Order extends AuditableEntity {
   truck_type: TruckType;
 
   @Column({ nullable: true })
-  truck_type_id: string;  
+  truck_type_id: string;
 
   @Column()
   trucks_count: number;
-  @OneToMany(()=>OrderOffer,orderOffer=>orderOffer.order)
-  offers:OrderOffer[]
+  @OneToMany(() => OrderOffer, (orderOffer) => orderOffer.order)
+  offers: OrderOffer[];
 
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-package_price: number;
+  package_price: number;
 
   @ManyToOne(() => PackageType)
   @JoinColumn({ name: 'package_type' })
@@ -39,22 +38,25 @@ package_price: number;
   @Column()
   package_weight: string;
 
-  @Column({default:OrderStatus.PENDING,type:"enum",enum:OrderStatus})
+  @Column({ default: OrderStatus.PENDING, type: 'enum', enum: OrderStatus })
   status: OrderStatus;
 
   @Column({ nullable: true })
   description: string;
 
-  @ManyToOne(() => Address)
-  @JoinColumn({ name: 'pickup_address_id' })
-  pickup_address: Address;
   @Column({ nullable: true })
-  pickup_address_id: string;
-  @ManyToOne(() => Address)
-  @JoinColumn({ name: 'delivery_address_id' })
+  pickup_address: string;
+  @Column({ type: 'float', precision: 11, scale: 6 })
+  pickup_latitude: number;
+  @Column({ type: 'float', precision: 11, scale: 6 })
+  pickup_longitude: number;
+  @Column({ nullable: true })
   delivery_address: Address;
-  @Column({ nullable: true })
-  delivery_address_id: string;
+  @Column({ type: 'float', precision: 11, scale: 6 })
+  delivery_latitude: number;
+
+  @Column({ type: 'float', precision: 11, scale: 6 })
+  delivery_longitude: number;
 
   @Column({ default: false })
   is_fragile: boolean;
@@ -64,10 +66,9 @@ package_price: number;
   @Column({ default: false })
   needs_freezing: boolean;
 
+  @Column({ nullable: true })
+  recipient_name: string;
 
-  @Column({nullable:true})
- recipient_name:string
-
-  @Column({nullable:true})
-  recipient_phone:string
+  @Column({ nullable: true })
+  recipient_phone: string;
 }
