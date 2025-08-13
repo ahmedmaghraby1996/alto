@@ -51,7 +51,7 @@ export class Order extends AuditableEntity {
   @Column({ type: 'float', precision: 11, scale: 6 })
   pickup_longitude: number;
   @Column({ nullable: true })
-  delivery_address: Address;
+  delivery_address: string;
   @Column({ type: 'float', precision: 11, scale: 6 })
   delivery_latitude: number;
 
