@@ -123,6 +123,13 @@ export class AuthenticationController {
     const result = plainToInstance(RegisterResponse, user, {
       excludeExtraneousValues: true,
     });
+    try {
+      await this.authService.sendOtp({
+        role: req.role,
+        username: req.phone,
+        type: 'phone',
+      });
+    } catch {}
     return new ActionResponse<RegisterResponse>(result, {
       statusCode: HttpStatus.CREATED,
     });
@@ -151,11 +158,18 @@ export class AuthenticationController {
     req.avatarFile = files.avatarFile?.[0];
     req.driving_license_image = files.driving_license_image?.[0];
     req.vehicle_registration_image = files.vehicle_registration_image?.[0];
-    req.role = Role.DRIVER
+    req.role = Role.DRIVER;
     const user = await this.authService.register(req);
     const result = plainToInstance(RegisterResponse, user, {
       excludeExtraneousValues: true,
     });
+    try {
+      await this.authService.sendOtp({
+        role: req.role,
+        username: req.phone,
+        type: 'phone',
+      });
+    } catch {}
     return new ActionResponse<RegisterResponse>(result, {
       statusCode: HttpStatus.CREATED,
     });
@@ -239,9 +253,9 @@ export class AuthenticationController {
   async getVehicleSizes() {
     const vehicleSizes = await this.authService.getTruckSizes();
     const result = vehicleSizes.map((item) => {
-      item.icon= toUrl(item.icon);
-      return item
-    })
+      item.icon = toUrl(item.icon);
+      return item;
+    });
     const res = this._i18nResponse.entity(result);
     return new ActionResponse(res);
   }
@@ -250,14 +264,12 @@ export class AuthenticationController {
   async getVehicleTypes(@Param('id') id: string) {
     const vehicleTypes = await this.authService.getTruckTypes(id);
     const result = vehicleTypes.map((item) => {
-      item.icon= toUrl(item.icon);
-      return item
-    })
+      item.icon = toUrl(item.icon);
+      return item;
+    });
     const res = this._i18nResponse.entity(result);
     return new ActionResponse(res);
   }
-
-
 
   async resortCities() {
     await this.cityRepository.query(`
