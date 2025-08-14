@@ -25,9 +25,9 @@ export class RegisterRequest {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsNotEmpty()
-  @IsEmail()
-  @Unique('User')
+  // @IsNotEmpty()
+  // @IsEmail()
+  // @Unique('User')
   email?: string;
  
 
@@ -36,9 +36,9 @@ export class RegisterRequest {
   // grades_ids:string[]
 
  
-  @ApiProperty({required:false,enum:Gender})
+  @ApiProperty({required:false,})
   @IsOptional()
-  @IsEnum(Gender)
+  // @IsEnum(Gender)
   gender: Gender
 
 
