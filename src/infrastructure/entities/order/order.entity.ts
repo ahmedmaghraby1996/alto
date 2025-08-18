@@ -15,7 +15,7 @@ export class Order extends AuditableEntity {
   user_id: string;
 
   @ManyToOne(() => TruckType)
-  @JoinColumn({ name: 'type_id' })
+  @JoinColumn()
   truck_type: TruckType;
 
   @Column({ nullable: true })
