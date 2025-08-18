@@ -33,7 +33,7 @@ export class Order extends AuditableEntity {
   @JoinColumn({ name: 'package_type' })
   packageType: PackageType;
   @Column({ nullable: true })
-  package_type: string;
+  package_type_id: string;
 
   @Column()
   package_weight: string;
