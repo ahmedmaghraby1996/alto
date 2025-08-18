@@ -31,7 +31,7 @@ export class Order extends AuditableEntity {
 
   @ManyToOne(() => PackageType)
   @JoinColumn({ name: 'package_type' })
-  packageType: PackageType;
+  package_type: PackageType;
   @Column({ nullable: true })
   package_type_id: string;
 
