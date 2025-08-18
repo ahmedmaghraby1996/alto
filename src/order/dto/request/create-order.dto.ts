@@ -26,8 +26,8 @@ export class CreateOrderDto {
   @Min(0)
   package_price: number;
 
-  @ApiProperty({ example: 'uuid-of-package-type' })
-  @IsUUID()
+  @ApiProperty()
+ 
   package_type_id: string;
 
   @ApiProperty({ example: '5' })
