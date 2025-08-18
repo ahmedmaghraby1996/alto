@@ -12,8 +12,8 @@ import {
 } from 'class-validator';
 
 export class CreateOrderDto {
-  @ApiProperty({ example: 'uuid-of-truck-type' })
-  @IsUUID()
+  @ApiProperty( )
+
   truck_type_id: string;
 
   @ApiProperty({ example: 1 })
