@@ -1,4 +1,4 @@
 export enum IDType {
-  NATIONAL_ID = 'National ID',
-  RESIDENCE_PERMIT = 'Residence Permit',
+  NATIONAL_ID = 'National_ID',
+  RESIDENCE_PERMIT = 'Residence_Permit',
 }
