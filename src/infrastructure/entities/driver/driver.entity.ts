@@ -9,7 +9,8 @@ import { IDType } from 'src/infrastructure/data/enums/id-type.enum';
 export class Driver extends AuditableEntity {
   @ManyToOne(() => User)
   user: User;
-
+  @Column({nullable:true})
+  user_id: string;
   @ManyToOne(() => TruckType)
   vehicle_type: TruckType;
 
@@ -43,6 +44,12 @@ id_type: IDType;
 
   @Column({ nullable: true })
   vehicle_registration_image: string;
+
+  @Column({ nullable: true })
+  latitude: number
+
+  @Column({ nullable: true })
+  longitude: number
 
   @ManyToMany(() => City)
   cities: City[];

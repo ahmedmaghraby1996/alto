@@ -54,6 +54,7 @@ import {
   UpdateStoreInfoRequest,
 } from './dto/request/update-store-info.request';
 import { AddBranchRequest } from './dto/request/add-branch.request';
+import { UpdateDriverLocationDto } from './dto/request/update-drivier-location.dto';
 
 
 @ApiBearerAuth()
@@ -146,6 +147,14 @@ export class UserController {
           excludeExtraneousValues: true,
         },
       ),
+    );
+  }
+
+  @Roles(Role.DRIVER)
+  @Put('update-driver-location')
+  async updateDriverLocation(@Body() request:UpdateDriverLocationDto) {
+    return new ActionResponse(
+      await this.userService.updateDriverLocation(request)
     );
   }
 

@@ -27,6 +27,8 @@ import {
 } from './dto/request/update-store-info.request';
 
 import { AddBranchRequest } from './dto/request/add-branch.request';
+import {  Driver } from 'src/infrastructure/entities/driver/driver.entity';
+import { UpdateDriverLocationDto } from './dto/request/update-drivier-location.dto';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService extends BaseService<User> {
@@ -37,6 +39,7 @@ export class UserService extends BaseService<User> {
     @Inject(ImageManager) private readonly imageManager: ImageManager,
     @Inject(StorageManager) private readonly storageManager: StorageManager,
     @Inject(ConfigService) private readonly _config: ConfigService,
+    @InjectRepository(Driver) private readonly driverRepo: Repository<Driver>,
 
   ) {
     super(userRepo);
@@ -82,6 +85,19 @@ export class UserService extends BaseService<User> {
   }
 
 
+  async updateDriverLocation(request:UpdateDriverLocationDto) {
+    const driver = await this.driverRepo.findOne({
+      where: { user_id: this.request.user.id, },
+    });
+    if (!driver) throw new NotFoundException('Driver not found');
+
+    await this.driverRepo.update(driver.id, {
+      latitude: request.latitude,
+      longitude: request.longitude
+    })
+    return { message: 'Driver location updated successfully' };
+  }
 
 
 }
+
