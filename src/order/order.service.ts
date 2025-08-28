@@ -61,9 +61,8 @@ export class OrderService extends BaseService<Order> {
     });
     if (!driver) throw new Error('Driver not found');
 
-    const offers = await this.orderOffer_repo
-      .createQueryBuilder('offer')
-      .innerJoinAndSelect('offer.order', 'order')
+    const offers = await this.order_repo
+      .createQueryBuilder('order')
       .where('order.status = :status', { status: OrderStatus.PENDING })
       .andWhere(
         `
