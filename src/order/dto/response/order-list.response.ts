@@ -17,6 +17,8 @@ needs_cooling: boolean
 pickup_address: string
 @Expose()
 delivery_address: string
+@Expose()
+description: string
 
 
 }
