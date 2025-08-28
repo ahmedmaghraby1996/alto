@@ -61,7 +61,7 @@ export class OrderController {
   @Get('get-driver-offers')
   async getDriverOffers(){
     const offers=await this.orderService.getDriverOffers()
-    const result=plainToInstance(OrderListResponse,offers)
+    const result=plainToInstance(OrderListResponse,offers,{excludeExtraneousValues:true})
     return new ActionResponse(result)
 
   }
