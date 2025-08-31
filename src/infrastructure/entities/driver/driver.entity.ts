@@ -45,12 +45,12 @@ id_type: IDType;
   @Column({ nullable: true })
   vehicle_registration_image: string;
 
-  @Column({ nullable: true })
-    @Column({ type: 'float', precision: 11, scale: 6 })
+
+    @Column({ type: 'float', precision: 11, scale: 6 , nullable: true})
   latitude: number
 
-  @Column({ nullable: true })
-    @Column({ type: 'float', precision: 11, scale: 6 })
+  
+    @Column({ type: 'float', precision: 11, scale: 6, nullable: true })
   longitude: number
 
   @ManyToMany(() => City)
