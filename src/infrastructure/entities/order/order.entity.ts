@@ -90,6 +90,7 @@ export class Order extends AuditableEntity {
   async beforeInsert() {
  const now = Date.now(); // current timestamp
   const random = Math.floor(1000 + Math.random() * 9000); // 4-digit random
-  return `ORD-${now}-${random}`;
+  this.number = `ORD-${now}-${random}`;
+
   }
 }
