@@ -17,7 +17,7 @@ export class OrderDetailsResponse extends OrderListResponse {
   @Expose()
   package_price: number;
   @Expose()
-  Package_weight: string;
+  package_weight: string;
 
   @Expose()
   sent_offer:boolean
