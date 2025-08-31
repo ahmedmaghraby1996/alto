@@ -34,11 +34,14 @@ export class OrderService extends BaseService<Order> {
 
   async createOrder(dto: CreateOrderDto): Promise<Order> {
     const order = plainToInstance(Order, dto);
+    const now = Date.now(); // current timestamp
+    const random = Math.floor(1000 + Math.random() * 9000);
     return this.order_repo.save({
       ...order,
       package_type_id: dto.package_type_id,
       truck_type_id: dto.truck_type_id,
       user_id: this.request.user.id,
+      number: `ORD-${now}-${random}`,
     });
   }
 

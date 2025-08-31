@@ -8,14 +8,12 @@ import {
   OneToMany,
 } from 'typeorm';
 import { TruckType } from '../truck/truck-type.entity';
-import { v4 as uuid } from 'uuid';
 import { PackageType } from './package-type.entity';
 import { Address } from '../user/address.entity';
 import { OrderStatus } from 'src/infrastructure/data/enums/order-status.enumt';
 import { User } from '../user/user.entity';
 import { OrderOffer } from './order-offer.entity';
 import { Driver } from '../driver/driver.entity';
-import { randNum } from 'src/core/helpers/cast.helper';
 
 @Entity('order')
 export class Order extends AuditableEntity {
@@ -94,13 +92,10 @@ export class Order extends AuditableEntity {
   @Column({ nullable: true })
   recipient_phone: string;
 
-  public uniqueIdGenerator(): string {
-    return randNum(8);
-  }
-
   @BeforeInsert()
-  generateAccount() {
-    // ensure the account is unique
-    if (!this.number) this.number = this.uniqueIdGenerator();
+   beforeInsert() {
+    const now = Date.now(); // current timestamp
+    const random = Math.floor(1000 + Math.random() * 9000); // 4-digit random
+    this.number = `ORD-${now}-${random}`;
   }
 }
