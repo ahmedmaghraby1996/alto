@@ -94,7 +94,7 @@ export class Order extends AuditableEntity {
   recipient_phone: string;
 
 @BeforeInsert()
-beforeInsert() {
+generateNumber() {
   this.number = `ORD-${Date.now()}-${uuid().slice(0, 6)}`;
 }
 }
