@@ -72,11 +72,12 @@ export class OrderController {
   @Get('get-order/:id')
   async getOrder(@Param('id') id: string) {
     const order = await this.orderService.getOrderDetails(id);
-    const response= this._i18nResponse.entity(order);
-    const result = plainToInstance(OrderDetailsResponse, response, {
+
+    const result = plainToInstance(OrderDetailsResponse, order, {
       excludeExtraneousValues: true,
     });
-    return new ActionResponse(result);
+        const response= this._i18nResponse.entity(result);
+    return new ActionResponse(response);
   }
 
   @Roles(Role.DRIVER)
