@@ -1,5 +1,5 @@
 import { AuditableEntity } from 'src/infrastructure/base/auditable.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { TruckType } from '../truck/truck-type.entity';
 import { PackageType } from './package-type.entity';
 import { Address } from '../user/address.entity';
@@ -15,6 +15,9 @@ export class Order extends AuditableEntity {
   user: User;
   @Column({ nullable: true })
   user_id: string;
+
+  @Column({ nullable: true })
+  number: string;
 
   @ManyToOne(() => Driver)
   @JoinColumn({ name: 'driver_id' })
@@ -46,7 +49,7 @@ export class Order extends AuditableEntity {
   @Column()
   package_weight: string;
 
-  sent_offer?:boolean
+  sent_offer?: boolean;
 
   @Column({ default: OrderStatus.PENDING, type: 'enum', enum: OrderStatus })
   status: OrderStatus;
@@ -81,4 +84,12 @@ export class Order extends AuditableEntity {
 
   @Column({ nullable: true })
   recipient_phone: string;
+
+
+  @BeforeInsert()
+  async beforeInsert() {
+ const now = Date.now(); // current timestamp
+  const random = Math.floor(1000 + Math.random() * 9000); // 4-digit random
+  return `ORD-${now}-${random}`;
+  }
 }

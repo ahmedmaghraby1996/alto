@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Inject,
+  Param,
   Post,
   Query,
   UseGuards,
@@ -69,7 +70,7 @@ export class OrderController {
   }
 
   @Get('get-order/:id')
-  async getOrder(@Query('id') id: string) {
+  async getOrder(@Param('id') id: string) {
     const order = await this.orderService.getOrderDetails(id);
     const response= this._i18nResponse.entity(order);
     const result = plainToInstance(OrderDetailsResponse, response, {
