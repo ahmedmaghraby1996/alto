@@ -8,6 +8,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { TruckType } from '../truck/truck-type.entity';
+import { v4 as uuid } from 'uuid';
 import { PackageType } from './package-type.entity';
 import { Address } from '../user/address.entity';
 import { OrderStatus } from 'src/infrastructure/data/enums/order-status.enumt';
@@ -92,10 +93,8 @@ export class Order extends AuditableEntity {
   @Column({ nullable: true })
   recipient_phone: string;
 
-  @BeforeInsert()
-  async beforeInsert() {
-    const now = Date.now(); // current timestamp
-    const random = Math.floor(1000 + Math.random() * 9000); // 4-digit random
-    this.number = `ORD-${now}-${random}`;
-  }
+@BeforeInsert()
+beforeInsert() {
+  this.number = `ORD-${Date.now()}-${uuid().slice(0, 6)}`;
+}
 }
