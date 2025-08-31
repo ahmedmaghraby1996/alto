@@ -36,6 +36,7 @@ export class OrderService extends BaseService<Order> {
     const order = plainToInstance(Order, dto);
     return this.order_repo.save({
       ...order,
+      package_type_id: dto.package_type_id,
       truck_type_id: dto.truck_type_id,
       user_id: this.request.user.id,
     });
