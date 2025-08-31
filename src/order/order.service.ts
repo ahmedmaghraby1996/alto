@@ -14,6 +14,8 @@ import { User } from 'src/infrastructure/entities/user/user.entity';
 import { PackageType } from 'src/infrastructure/entities/order/package-type.entity';
 import { Driver } from 'src/infrastructure/entities/driver/driver.entity';
 import { OrderStatus } from 'src/infrastructure/data/enums/order-status.enumt';
+import { Roles } from 'src/modules/authentication/guards/roles.decorator';
+import { Role } from 'src/infrastructure/data/enums/role.enum';
 
 @Injectable()
 export class OrderService extends BaseService<Order> {
@@ -85,5 +87,32 @@ export class OrderService extends BaseService<Order> {
       .getMany();
 
     return offers;
+  }
+
+  async getOrderDetails(id: string) {
+    const order = await this.order_repo.findOne({
+      where: { id },
+      relations: {
+        user: true,
+        driver: true,
+        truck_type: true,
+        package_type: true,
+      },
+    });
+    if (!order) throw new Error('Order not found');
+    if (
+      order.status == OrderStatus.PENDING &&
+      this.request.user.roles[0] == Role.DRIVER
+    ) {
+      const sent_offer = await this.orderOffer_repo.findOne({
+        where: { order_id: id, driver_id: this.request.user.id },
+      });
+      if (sent_offer) {
+        order.sent_offer = true;
+      } else {
+        order.sent_offer = false;
+      }
+    }
+    return order;
   }
 }

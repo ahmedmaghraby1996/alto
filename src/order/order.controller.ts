@@ -22,6 +22,7 @@ import { toUrl } from 'src/core/helpers/file.helper';
 import { I18nResponse } from 'src/core/helpers/i18n.helper';
 import { plainToInstance } from 'class-transformer';
 import { OrderListResponse } from './dto/response/order-list.response';
+import { OrderDetailsResponse } from './dto/response/order.detials.response';
 @ApiTags('Order')
 @ApiHeader({
   name: 'Accept-Language',
@@ -57,13 +58,24 @@ export class OrderController {
 
     return new PaginatedResponse(orders, { meta: { total, ...query } });
   }
-@Roles(Role.DRIVER)
+  @Roles(Role.DRIVER)
   @Get('get-driver-offers')
-  async getDriverOffers(){
-    const offers=await this.orderService.getDriverOffers()
-    const result=plainToInstance(OrderListResponse,offers,{excludeExtraneousValues:true})
-    return new ActionResponse(result)
+  async getDriverOffers() {
+    const offers = await this.orderService.getDriverOffers();
+    const result = plainToInstance(OrderListResponse, offers, {
+      excludeExtraneousValues: true,
+    });
+    return new ActionResponse(result);
+  }
 
+  @Get('get-order/:id')
+  async getOrder(@Query('id') id: string) {
+    const order = await this.orderService.getOrderDetails(id);
+    const response= this._i18nResponse.entity(order);
+    const result = plainToInstance(OrderDetailsResponse, response, {
+      excludeExtraneousValues: true,
+    });
+    return new ActionResponse(result);
   }
 
   @Roles(Role.DRIVER)

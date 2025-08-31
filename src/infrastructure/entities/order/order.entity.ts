@@ -6,6 +6,8 @@ import { Address } from '../user/address.entity';
 import { OrderStatus } from 'src/infrastructure/data/enums/order-status.enumt';
 import { User } from '../user/user.entity';
 import { OrderOffer } from './order-offer.entity';
+import { Driver } from '../driver/driver.entity';
+
 @Entity('order')
 export class Order extends AuditableEntity {
   @ManyToOne(() => User, (user) => user.orders)
@@ -13,6 +15,12 @@ export class Order extends AuditableEntity {
   user: User;
   @Column({ nullable: true })
   user_id: string;
+
+  @ManyToOne(() => Driver)
+  @JoinColumn({ name: 'driver_id' })
+  driver: Driver;
+  @Column({ nullable: true })
+  driver_id: string;
 
   @ManyToOne(() => TruckType)
   @JoinColumn()
@@ -37,6 +45,8 @@ export class Order extends AuditableEntity {
 
   @Column()
   package_weight: string;
+
+  sent_offer?:boolean
 
   @Column({ default: OrderStatus.PENDING, type: 'enum', enum: OrderStatus })
   status: OrderStatus;
