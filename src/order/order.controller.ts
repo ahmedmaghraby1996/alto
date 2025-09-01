@@ -23,10 +23,11 @@ import { toUrl } from 'src/core/helpers/file.helper';
 import { I18nResponse } from 'src/core/helpers/i18n.helper';
 import { plainToInstance } from 'class-transformer';
 import { Request } from 'express';
-import{REQUEST} from '@nestjs/core'
+import { REQUEST } from '@nestjs/core';
 import { OrderListResponse } from './dto/response/order-list.response';
 import { OrderDetailsResponse } from './dto/response/order.detials.response';
 import { applyQueryFilters } from 'src/core/helpers/service-related.helper';
+import { OrderOfferResponse } from './dto/response/order-offer.response';
 @ApiTags('Order')
 @ApiHeader({
   name: 'Accept-Language',
@@ -62,13 +63,23 @@ export class OrderController {
     applyQueryFilters(query, `user_id=${this.request.user.id}`);
     const orders = await this.orderService.findAll(query);
     const total = await this.orderService.count(query);
-    const response=plainToInstance(OrderListResponse, orders, {
+    const response = plainToInstance(OrderListResponse, orders, {
       excludeExtraneousValues: true,
-    })
+    });
     const result = this._i18nResponse.entity(response);
 
     return new PaginatedResponse(result, { meta: { total, ...query } });
   }
+  @Roles(Role.CLIENT)
+  @Get('get-client-offers/:id')
+  async getClientOffers(@Param('id') id: string) {
+    const offers = await this.orderService.getClientOffers(id);
+    const result = plainToInstance(OrderOfferResponse, offers, {
+      excludeExtraneousValues: true,
+    });
+    return new ActionResponse(result);
+  }
+
   @Roles(Role.DRIVER)
   @Get('get-driver-offers')
   async getDriverOffers() {
@@ -86,7 +97,7 @@ export class OrderController {
     const result = plainToInstance(OrderDetailsResponse, order, {
       excludeExtraneousValues: true,
     });
-        const response= this._i18nResponse.entity(result);
+    const response = this._i18nResponse.entity(result);
     return new ActionResponse(response);
   }
 

@@ -119,4 +119,12 @@ export class OrderService extends BaseService<Order> {
     }
     return order;
   }
+
+  async getClientOffers(id: string) {
+    const offers = await this.orderOffer_repo.find({
+      where: { order_id: id },
+      relations: { driver: true },
+    });
+    return offers;
+  }
 }
