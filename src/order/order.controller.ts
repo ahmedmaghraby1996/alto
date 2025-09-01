@@ -80,6 +80,13 @@ export class OrderController {
     return new ActionResponse(result);
   }
 
+
+  @Roles(Role.CLIENT)
+  @Post('accept-offer/:id')
+  async acceptOffer(@Param('id') id: string) {
+    return new ActionResponse(await this.orderService.acceptOffer(id));
+  }
+
   @Roles(Role.DRIVER)
   @Get('get-driver-offers')
   async getDriverOffers() {

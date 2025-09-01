@@ -13,10 +13,13 @@ import { CreateOfferDto } from './dto/request/create-offer.dto';
 import { User } from 'src/infrastructure/entities/user/user.entity';
 import { PackageType } from 'src/infrastructure/entities/order/package-type.entity';
 import { Driver } from 'src/infrastructure/entities/driver/driver.entity';
-import { OrderStatus } from 'src/infrastructure/data/enums/order-status.enumt';
+import {
+  OfferStatus,
+  OrderStatus,
+} from 'src/infrastructure/data/enums/order-status.enumt';
 import { Roles } from 'src/modules/authentication/guards/roles.decorator';
 import { Role } from 'src/infrastructure/data/enums/role.enum';
-
+import { DataSource } from 'typeorm';
 @Injectable()
 export class OrderService extends BaseService<Order> {
   constructor(
@@ -28,6 +31,7 @@ export class OrderService extends BaseService<Order> {
     @InjectRepository(PackageType)
     private readonly packageTypeRepo: Repository<PackageType>,
     @InjectRepository(Driver) private readonly driver_repo: Repository<Driver>,
+    @Inject(DataSource) private readonly dataSource: DataSource,
   ) {
     super(order_repo);
   }
@@ -126,5 +130,27 @@ export class OrderService extends BaseService<Order> {
       relations: { driver: true },
     });
     return offers;
+  }
+
+  async acceptOffer(id: string) {
+    return await this.dataSource.transaction(async (manager) => {
+      const offer = await manager.findOne(this.orderOffer_repo.target, {
+        where: { id },
+      });
+      if (!offer) throw new Error('Offer not found');
+
+      offer.status = OfferStatus.ACCEPTED;
+
+      const order = await manager.findOne(this.order_repo.target, {
+        where: { id: offer.order_id },
+      });
+      if (!order) throw new Error('Order not found');
+
+      order.status = OrderStatus.ACCEPTED;
+      order.driver_id = offer.driver_id;
+
+      await manager.save(order);
+      return await manager.save(offer);
+    });
   }
 }
