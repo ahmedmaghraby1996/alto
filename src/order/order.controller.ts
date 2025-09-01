@@ -22,8 +22,11 @@ import { Role } from 'src/infrastructure/data/enums/role.enum';
 import { toUrl } from 'src/core/helpers/file.helper';
 import { I18nResponse } from 'src/core/helpers/i18n.helper';
 import { plainToInstance } from 'class-transformer';
+import { Request } from 'express';
+import{REQUEST} from '@nestjs/core'
 import { OrderListResponse } from './dto/response/order-list.response';
 import { OrderDetailsResponse } from './dto/response/order.detials.response';
+import { applyQueryFilters } from 'src/core/helpers/service-related.helper';
 @ApiTags('Order')
 @ApiHeader({
   name: 'Accept-Language',
@@ -36,6 +39,7 @@ import { OrderDetailsResponse } from './dto/response/order.detials.response';
 export class OrderController {
   constructor(
     private readonly orderService: OrderService,
+    @Inject(REQUEST) private readonly request: Request,
     @Inject(I18nResponse) private readonly _i18nResponse: I18nResponse,
   ) {}
 
@@ -52,12 +56,18 @@ export class OrderController {
     return new ActionResponse(await this.orderService.createOrder(req));
   }
 
+  @Roles(Role.CLIENT)
   @Get()
   async getAll(@Query() query: PaginatedRequest) {
+    applyQueryFilters(query, `user_id=${this.request.user.id}`);
     const orders = await this.orderService.findAll(query);
     const total = await this.orderService.count(query);
+    const response=plainToInstance(OrderListResponse, orders, {
+      excludeExtraneousValues: true,
+    })
+    const result = this._i18nResponse.entity(response);
 
-    return new PaginatedResponse(orders, { meta: { total, ...query } });
+    return new PaginatedResponse(result, { meta: { total, ...query } });
   }
   @Roles(Role.DRIVER)
   @Get('get-driver-offers')
