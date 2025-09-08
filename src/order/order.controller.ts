@@ -87,6 +87,35 @@ export class OrderController {
     return new ActionResponse(await this.orderService.acceptOffer(id));
   }
 
+    @Roles(Role.CLIENT)
+  @Post('reject-offer/:id')
+  async rejectOffer(@Param('id') id: string) {
+    return new ActionResponse(await this.orderService.rejectOffer(id));
+  }
+
+  @Roles(Role.DRIVER)
+  @Post('pickup/:id')
+  async pickupOrder(@Param('id') id: string) {
+    return new ActionResponse(await this.orderService.pickupOrder(id));
+  }
+
+  @Roles(Role.DRIVER)
+  @Post('deliver/:id')
+  async deliverOrder(@Param('id') id: string) {
+    return new ActionResponse(await this.orderService.deliverOrder(id));
+  }
+
+  @Roles(Role.CLIENT)
+  @Post('complete/:id')
+  async completeOrder(@Param('id') id: string) {
+    return new ActionResponse(await this.orderService.completeOrder(id));
+  }
+
+
+
+
+    
+
   @Roles(Role.DRIVER)
   @Get('get-driver-offers')
   async getDriverOffers() {

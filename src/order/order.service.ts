@@ -153,4 +153,52 @@ export class OrderService extends BaseService<Order> {
       return await manager.save(offer);
     });
   }
+
+  async rejectOffer(id: string) {
+    return await this.dataSource.transaction(async (manager) => {
+      const offer = await manager.findOne(this.orderOffer_repo.target, {
+        where: { id },
+      });
+      if (!offer) throw new Error('Offer not found');
+      offer.status = OfferStatus.REJECTED;
+      return await manager.save(offer);
+    });
+  }
+
+  async pickupOrder(id: string) {
+    return await this.dataSource.transaction(async (manager) => {
+      const order = await manager.findOne(this.order_repo.target, {
+        where: { id },
+      });
+      if (!order) throw new Error('Order not found');
+      if(order.status != OrderStatus.ACCEPTED) throw new Error('Order not accepted');
+      order.status = OrderStatus.PICKED_UP;
+      return await manager.save(order);
+    });
+  }
+  
+
+  async deliverOrder(id: string) {
+    return await this.dataSource.transaction(async (manager) => {
+      const order = await manager.findOne(this.order_repo.target, {
+        where: { id },
+      });
+      if (!order) throw new Error('Order not found');
+      if(order.status != OrderStatus.PICKED_UP) throw new Error('Order not picked up');
+      order.status = OrderStatus.DELIVERED;
+      return await manager.save(order);
+    });
+  }
+
+  async completeOrder(id: string) {
+    return await this.dataSource.transaction(async (manager) => {
+      const order = await manager.findOne(this.order_repo.target, {
+        where: { id },
+      });
+      if (!order) throw new Error('Order not found');
+      if(order.status != OrderStatus.DELIVERED) throw new Error('Order not delivered');
+      order.status = OrderStatus.COMPLETED;
+      return await manager.save(order);
+    });
+  }
 }
