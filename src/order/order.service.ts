@@ -51,8 +51,8 @@ export class OrderService extends BaseService<Order> {
 
   async createOffer(dto: CreateOfferDto): Promise<OrderOffer> {
     const offer = plainToInstance(OrderOffer, dto);
-    const driver = await this.user_repo.findOne({
-      where: { id: this.request.user.id },
+    const driver = await this.driver_repo.findOne({
+      where: { user_id: this.request.user.id },
     });
     return this.orderOffer_repo.save({
       ...offer,
