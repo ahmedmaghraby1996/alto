@@ -37,4 +37,6 @@ export class UserResponse {
       : null;
   })
   city: City;
+
+  
 }
