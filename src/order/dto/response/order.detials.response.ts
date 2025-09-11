@@ -1,6 +1,7 @@
 import { Expose, Type } from 'class-transformer';
 import { OrderListResponse } from './order-list.response';
 import { PackageType } from 'src/infrastructure/entities/order/package-type.entity';
+import { OrderOfferResponse } from './order-offer.response';
 
 export class OrderDetailsResponse extends OrderListResponse {
   @Expose()
@@ -22,6 +23,9 @@ export class OrderDetailsResponse extends OrderListResponse {
   @Expose()
   sent_offer:boolean
 
+  @Expose()
+  @Type(() => OrderOfferResponse)
+  offer:OrderOfferResponse
   
 
 

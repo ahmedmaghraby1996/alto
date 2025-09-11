@@ -136,7 +136,13 @@ if(!order) throw new Error('Order not found')
         order.sent_offer = false;
       }
     }
-    return order;
+    const order_offer= await this.orderOffer_repo.findOne({
+      where:{order_id:id,status:OfferStatus.ACCEPTED}
+    })
+    return {
+      order,
+     offer: order_offer
+    };
   }
 
   async getClientOffers(id: string) {
