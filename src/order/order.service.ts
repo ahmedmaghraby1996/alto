@@ -50,7 +50,11 @@ export class OrderService extends BaseService<Order> {
   }
 
   async createOffer(dto: CreateOfferDto): Promise<OrderOffer> {
-
+const order= await this.order_repo.findOne({
+  where:{id:dto.order_id}
+})
+if(!order) throw new Error('Order not found')
+  if(order.status != OrderStatus.PENDING) throw new Error('Order not pending')
  
     const offer = plainToInstance(OrderOffer, dto);
     const driver = await this.driver_repo.findOne({
@@ -187,6 +191,17 @@ export class OrderService extends BaseService<Order> {
     });
   }
 
+  async cancelOrder(id: string) {
+    return await this.dataSource.transaction(async (manager) => {
+      const order = await manager.findOne(this.order_repo.target, {
+        where: { id },
+      });
+      if (!order) throw new Error('Order not found');
+      if(order.status != OrderStatus.PENDING) throw new Error('Order not pending');
+      order.status = OrderStatus.CANCELLED;
+      return await manager.save(order);
+    });
+  }
   async pickupOrder(id: string) {
     return await this.dataSource.transaction(async (manager) => {
       const order = await manager.findOne(this.order_repo.target, {

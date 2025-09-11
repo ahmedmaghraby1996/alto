@@ -90,10 +90,19 @@ export class OrderController {
     return new ActionResponse(await this.orderService.acceptOffer(id));
   }
 
+ 
+  
+
     @Roles(Role.CLIENT)
   @Post('reject-offer/:id')
   async rejectOffer(@Param('id') id: string) {
     return new ActionResponse(await this.orderService.rejectOffer(id));
+  }
+  // cancel order
+   @Roles(Role.CLIENT)
+  @Post('cancel/:id')
+  async cancelOrder(@Param('id') id: string) {
+    return new ActionResponse(await this.orderService.cancelOrder(id));
   }
 
     @Roles(Role.DRIVER)
