@@ -26,6 +26,7 @@ export class OrderListResponse {
 
   @Expose()
   @Transform((value) =>{
+    if(value.obj?.driver?.user==null) return null
     return plainToInstance(UserResponse, {...value.obj?.driver?.user,rating:0},{excludeExtraneousValues: true});
   })
   driver: UserResponse;
