@@ -117,7 +117,7 @@ if(!order) throw new Error('Order not found')
       where: { id },
       relations: {
         user: true,
-        driver: { user: true },
+        driver: { user: true ,vehicle_type:true,},
         truck_type: true,
         package_type: true,
       },

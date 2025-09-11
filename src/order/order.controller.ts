@@ -64,6 +64,7 @@ export class OrderController {
     applyQueryIncludes(query, 'driver');
     applyQueryIncludes(query, 'driver.user');
     applyQueryIncludes(query, 'offers');
+    
     const orders = await this.orderService.findAll(query);
     const total = await this.orderService.count(query);
     const response = plainToInstance(OrderListResponse, orders, {

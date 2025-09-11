@@ -25,9 +25,20 @@ export class OrderListResponse {
   description: string;
 
   @Expose()
-  @Transform((value) =>{
-    if(value.obj?.driver?.user==null) return null
-    return plainToInstance(UserResponse, {...value.obj?.driver?.user,rating:0},{excludeExtraneousValues: true});
+  @Transform((value) => {
+    if (value.obj?.driver?.user == null) return null;
+    return plainToInstance(
+      UserResponse,
+      {
+        ...value.obj?.driver?.user,
+        rating: 0,
+        vehicle_type: value.obj?.driver?.vehicle_type,
+        vehicle_number: value.obj?.driver?.vehicle_registration_number,
+        latitude: value.obj?.driver?.latitude,
+        longitude: value.obj?.driver?.longitude,
+      },
+      { excludeExtraneousValues: true },
+    );
   })
   driver: UserResponse;
 
