@@ -11,7 +11,7 @@ status:string
 @Expose()
 @Transform((value) => {
 
-    return plainToInstance(UserResponse, {...value.obj?.driver,rating:0});
+    return plainToInstance(UserResponse, {...value.obj?.driver?.user,rating:0});
 })
 Driver:any
 }
