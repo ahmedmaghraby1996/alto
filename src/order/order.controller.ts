@@ -62,7 +62,7 @@ export class OrderController {
   async getAll(@Query() query: PaginatedRequest) {
     applyQueryFilters(query, `user_id=${this.request.user.id}`);
     applyQueryIncludes(query, 'driver');
-    applyQueryIncludes(query, 'driver.user');
+    applyQueryIncludes(query, 'driver#user.vehicle_type');
     applyQueryIncludes(query, 'offers');
     
     const orders = await this.orderService.findAll(query);
