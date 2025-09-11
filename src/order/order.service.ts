@@ -140,7 +140,7 @@ if(!order) throw new Error('Order not found')
       where:{order_id:id,status:OfferStatus.ACCEPTED}
     })
     return {
-      order,
+      ...order,
      offer: order_offer
     };
   }
