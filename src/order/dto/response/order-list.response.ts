@@ -26,7 +26,7 @@ export class OrderListResponse {
 
   @Expose()
   @Transform((value) =>{
-    return plainToInstance(UserResponse, {...value.obj?.driver,rating:0},{excludeExtraneousValues: true});
+    return plainToInstance(UserResponse, {...value.obj?.driver?.user,rating:0},{excludeExtraneousValues: true});
   })
   driver: UserResponse;
 
