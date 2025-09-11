@@ -22,5 +22,7 @@ export class OrderDetailsResponse extends OrderListResponse {
   @Expose()
   sent_offer:boolean
 
+  
+
 
 }

@@ -26,7 +26,7 @@ import { Request } from 'express';
 import { REQUEST } from '@nestjs/core';
 import { OrderListResponse } from './dto/response/order-list.response';
 import { OrderDetailsResponse } from './dto/response/order.detials.response';
-import { applyQueryFilters } from 'src/core/helpers/service-related.helper';
+import { applyQueryFilters, applyQueryIncludes } from 'src/core/helpers/service-related.helper';
 import { OrderOfferResponse } from './dto/response/order-offer.response';
 @ApiTags('Order')
 @ApiHeader({
@@ -61,6 +61,8 @@ export class OrderController {
   @Get()
   async getAll(@Query() query: PaginatedRequest) {
     applyQueryFilters(query, `user_id=${this.request.user.id}`);
+    applyQueryIncludes(query, 'driver');
+    applyQueryIncludes(query, 'offers');
     const orders = await this.orderService.findAll(query);
     const total = await this.orderService.count(query);
     const response = plainToInstance(OrderListResponse, orders, {
@@ -91,6 +93,12 @@ export class OrderController {
   @Post('reject-offer/:id')
   async rejectOffer(@Param('id') id: string) {
     return new ActionResponse(await this.orderService.rejectOffer(id));
+  }
+
+    @Roles(Role.DRIVER)
+  @Post('cancel-offer/:id')
+  async cancel(@Param('id') id: string) {
+    return new ActionResponse(await this.orderService.cancelOffer(id));
   }
 
   @Roles(Role.DRIVER)

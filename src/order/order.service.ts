@@ -50,10 +50,20 @@ export class OrderService extends BaseService<Order> {
   }
 
   async createOffer(dto: CreateOfferDto): Promise<OrderOffer> {
+
+ 
     const offer = plainToInstance(OrderOffer, dto);
     const driver = await this.driver_repo.findOne({
       where: { user_id: this.request.user.id },
     });
+       //find existing offer 
+    const existingOffer = await this.orderOffer_repo.findOne({
+      where: { order_id: dto.order_id , driver_id: driver.id, status: OfferStatus.PENDING },
+    })
+
+    if (existingOffer) {
+      throw new Error('Offer already exists');
+    }
     return this.orderOffer_repo.save({
       ...offer,
       driver_id: driver.id,
@@ -73,6 +83,7 @@ export class OrderService extends BaseService<Order> {
 
     const offers = await this.order_repo
       .createQueryBuilder('order')
+      .leftJoinAndSelect('order.driver', 'driver')
       .where('order.status = :status', { status: OrderStatus.PENDING })
       .andWhere(
         `
@@ -162,6 +173,17 @@ export class OrderService extends BaseService<Order> {
       if (!offer) throw new Error('Offer not found');
       offer.status = OfferStatus.REJECTED;
       return await manager.save(offer);
+    });
+  }
+
+  async cancelOffer(id: string) {
+    return await this.dataSource.transaction(async (manager) => {
+      const offer = await manager.findOne(this.orderOffer_repo.target, {
+        where: { id },
+      });
+      if (!offer) throw new Error('Offer not found');
+
+      return await manager.remove(offer);
     });
   }
 

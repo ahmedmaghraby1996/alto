@@ -55,6 +55,12 @@ id_type: IDType;
 
   @ManyToMany(() => City)
   cities: City[];
+
+  @Column({ default: 0 })
+  total_rating: number;
+  @Column({ default: 0 })
+  number_of_ratings: number;
+
   constructor(partial?: Partial<Driver>) {
     super();
     Object.assign(this, partial);

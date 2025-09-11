@@ -23,6 +23,8 @@ export class UserResponse {
   role: string;
   @Expose()
   created_at: Date;
+  @Expose()
+  rating: number;
 
   @Expose()
   @Transform((value) => {
