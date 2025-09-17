@@ -2,10 +2,14 @@ import { Expose, Type } from 'class-transformer';
 import { OrderListResponse } from './order-list.response';
 import { PackageType } from 'src/infrastructure/entities/order/package-type.entity';
 import { OrderOfferResponse } from './order-offer.response';
+import { UserResponse } from 'src/modules/user/dto/response/user-response';
 
 export class OrderDetailsResponse extends OrderListResponse {
   @Expose()
   pickup_latitude: number;
+  @Expose()
+  @Type(() => UserResponse)
+  user:UserResponse
   @Expose()
   pickup_longitude: number;
   @Expose()
