@@ -26,7 +26,10 @@ import { Request } from 'express';
 import { REQUEST } from '@nestjs/core';
 import { OrderListResponse } from './dto/response/order-list.response';
 import { OrderDetailsResponse } from './dto/response/order.detials.response';
-import { applyQueryFilters, applyQueryIncludes } from 'src/core/helpers/service-related.helper';
+import {
+  applyQueryFilters,
+  applyQueryIncludes,
+} from 'src/core/helpers/service-related.helper';
 import { OrderOfferResponse } from './dto/response/order-offer.response';
 @ApiTags('Order')
 @ApiHeader({
@@ -57,14 +60,22 @@ export class OrderController {
     return new ActionResponse(await this.orderService.createOrder(req));
   }
 
-  @Roles(Role.CLIENT)
+  @Roles(Role.CLIENT, Role.DRIVER)
   @Get()
   async getAll(@Query() query: PaginatedRequest) {
     applyQueryFilters(query, `user_id=${this.request.user.id}`);
     applyQueryIncludes(query, 'driver');
     applyQueryIncludes(query, 'driver#user.vehicle_type');
     applyQueryIncludes(query, 'offers');
-    
+    if (this.request.user.roles.includes(Role.DRIVER)) {
+      const driver = await this.orderService.getDriver();
+      applyQueryFilters(query, `driver_id=${driver.id}`);
+    }
+
+    if (this.request.user.roles.includes(Role.CLIENT)) {
+      applyQueryFilters(query, `user_id=${this.request.user.id}`);
+    }
+
     const orders = await this.orderService.findAll(query);
     const total = await this.orderService.count(query);
     const response = plainToInstance(OrderListResponse, orders, {
@@ -84,29 +95,25 @@ export class OrderController {
     return new ActionResponse(result);
   }
 
-
   @Roles(Role.CLIENT)
   @Post('accept-offer/:id')
   async acceptOffer(@Param('id') id: string) {
     return new ActionResponse(await this.orderService.acceptOffer(id));
   }
 
- 
-  
-
-    @Roles(Role.CLIENT)
+  @Roles(Role.CLIENT)
   @Post('reject-offer/:id')
   async rejectOffer(@Param('id') id: string) {
     return new ActionResponse(await this.orderService.rejectOffer(id));
   }
   // cancel order
-   @Roles(Role.CLIENT)
+  @Roles(Role.CLIENT)
   @Post('cancel/:id')
   async cancelOrder(@Param('id') id: string) {
     return new ActionResponse(await this.orderService.cancelOrder(id));
   }
 
-    @Roles(Role.DRIVER)
+  @Roles(Role.DRIVER)
   @Post('cancel-offer/:id')
   async cancel(@Param('id') id: string) {
     return new ActionResponse(await this.orderService.cancelOffer(id));
@@ -129,11 +136,6 @@ export class OrderController {
   async completeOrder(@Param('id') id: string) {
     return new ActionResponse(await this.orderService.completeOrder(id));
   }
-
-
-
-
-    
 
   @Roles(Role.DRIVER)
   @Get('get-driver-offers')

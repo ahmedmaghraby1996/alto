@@ -94,6 +94,7 @@ export class RegisterUserTransaction extends BaseTransaction<
           vehicle_registration_number: req.vehicle_registration_number,
           driving_license_number: req.driving_license_number,
           status: DriverStatus.PENDING,
+          vehicle_has_cooling: req.vehicle_has_cooling,
         });
         if (req.cities) {
           const cities = await context.find(City, {

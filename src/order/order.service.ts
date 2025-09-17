@@ -20,6 +20,7 @@ import {
 import { Roles } from 'src/modules/authentication/guards/roles.decorator';
 import { Role } from 'src/infrastructure/data/enums/role.enum';
 import { DataSource } from 'typeorm';
+import { where } from 'sequelize';
 @Injectable()
 export class OrderService extends BaseService<Order> {
   constructor(
@@ -32,6 +33,7 @@ export class OrderService extends BaseService<Order> {
     private readonly packageTypeRepo: Repository<PackageType>,
     @InjectRepository(Driver) private readonly driver_repo: Repository<Driver>,
     @Inject(DataSource) private readonly dataSource: DataSource,
+    @InjectRepository(Driver) private readonly driverRepo: Repository<Driver>,
   ) {
     super(order_repo);
   }
@@ -50,20 +52,25 @@ export class OrderService extends BaseService<Order> {
   }
 
   async createOffer(dto: CreateOfferDto): Promise<OrderOffer> {
-const order= await this.order_repo.findOne({
-  where:{id:dto.order_id}
-})
-if(!order) throw new Error('Order not found')
-  if(order.status != OrderStatus.PENDING) throw new Error('Order not pending')
- 
+    const order = await this.order_repo.findOne({
+      where: { id: dto.order_id },
+    });
+    if (!order) throw new Error('Order not found');
+    if (order.status != OrderStatus.PENDING)
+      throw new Error('Order not pending');
+
     const offer = plainToInstance(OrderOffer, dto);
     const driver = await this.driver_repo.findOne({
       where: { user_id: this.request.user.id },
     });
-       //find existing offer 
+    //find existing offer
     const existingOffer = await this.orderOffer_repo.findOne({
-      where: { order_id: dto.order_id , driver_id: driver.id, status: OfferStatus.PENDING },
-    })
+      where: {
+        order_id: dto.order_id,
+        driver_id: driver.id,
+        status: OfferStatus.PENDING,
+      },
+    });
 
     if (existingOffer) {
       throw new Error('Offer already exists');
@@ -74,50 +81,64 @@ if(!order) throw new Error('Order not found')
     });
   }
 
+  async getDriver() {
+    const driver = await this.driver_repo.findOne({
+      where: { user_id: this.request.user.id },
+    });
+    return driver;
+  }
+
   async getPackageTypes(): Promise<PackageType[]> {
     const types = await this.packageTypeRepo.find();
     return types;
   }
 
-  async getDriverOffers() {
-    const driver = await this.driver_repo.findOne({
-      where: { user_id: this.request.user.id },
-    });
-    if (!driver) throw new Error('Driver not found');
+async getDriverOffers() {
+  const driver = await this.driver_repo.findOne({
+    where: { user_id: this.request.user.id },
+  });
+  if (!driver) throw new Error('Driver not found');
 
-    const offers = await this.order_repo
-      .createQueryBuilder('order')
-      .leftJoinAndSelect('order.driver', 'driver')
-      .where('order.status = :status', { status: OrderStatus.PENDING })
-      .andWhere(
-        `
-    (
-      6371 * acos(
-        cos(radians(:driverLat)) *
-        cos(radians(order.pickup_latitude)) *
-        cos(radians(order.pickup_longitude) - radians(:driverLng)) +
-        sin(radians(:driverLat)) *
-        sin(radians(order.pickup_latitude))
-      )
-    ) <= :maxDistance
-  `,
-        {
-          driverLat: driver.latitude,
-          driverLng: driver.longitude,
-          maxDistance: 10, // in kilometers
-        },
-      )
-      .getMany();
+  const offers = await this.order_repo
+    .createQueryBuilder('order')
+    .leftJoinAndSelect('order.driver', 'driver')
+    .where('order.status = :status', { status: OrderStatus.PENDING })
+    .andWhere(
+      `
+      (
+        6371 * acos(
+          cos(radians(:driverLat)) *
+          cos(radians(order.pickup_latitude)) *
+          cos(radians(order.pickup_longitude) - radians(:driverLng)) +
+          sin(radians(:driverLat)) *
+          sin(radians(order.pickup_latitude))
+        )
+      ) <= :maxDistance
+      `,
+      {
+        driverLat: driver.latitude,
+        driverLng: driver.longitude,
+        maxDistance: 10, // in kilometers
+      },
+    )
+    .andWhere(
+      `
+      (order.needs_cooling = false OR order.needs_cooling = :driverCooling)
+      `,
+      { driverCooling: driver.vehicle_has_cooling },
+    )
+    .getMany();
 
-    return offers;
-  }
+  return offers;
+}
+
 
   async getOrderDetails(id: string) {
     const order = await this.order_repo.findOne({
       where: { id },
       relations: {
         user: true,
-        driver: { user: true ,vehicle_type:true,},
+        driver: { user: true, vehicle_type: true },
         truck_type: true,
         package_type: true,
       },
@@ -136,12 +157,12 @@ if(!order) throw new Error('Order not found')
         order.sent_offer = false;
       }
     }
-    const order_offer= await this.orderOffer_repo.findOne({
-      where:{order_id:id,status:OfferStatus.ACCEPTED}
-    })
+    const order_offer = await this.orderOffer_repo.findOne({
+      where: { order_id: id, status: OfferStatus.ACCEPTED },
+    });
     return {
       ...order,
-     offer: order_offer
+      offer: order_offer,
     };
   }
 
@@ -203,7 +224,8 @@ if(!order) throw new Error('Order not found')
         where: { id },
       });
       if (!order) throw new Error('Order not found');
-      if(order.status != OrderStatus.PENDING) throw new Error('Order not pending');
+      if (order.status != OrderStatus.PENDING)
+        throw new Error('Order not pending');
       order.status = OrderStatus.CANCELLED;
       return await manager.save(order);
     });
@@ -214,12 +236,12 @@ if(!order) throw new Error('Order not found')
         where: { id },
       });
       if (!order) throw new Error('Order not found');
-      if(order.status != OrderStatus.ACCEPTED) throw new Error('Order not accepted');
+      if (order.status != OrderStatus.ACCEPTED)
+        throw new Error('Order not accepted');
       order.status = OrderStatus.PICKED_UP;
       return await manager.save(order);
     });
   }
-  
 
   async deliverOrder(id: string) {
     return await this.dataSource.transaction(async (manager) => {
@@ -227,7 +249,8 @@ if(!order) throw new Error('Order not found')
         where: { id },
       });
       if (!order) throw new Error('Order not found');
-      if(order.status != OrderStatus.PICKED_UP) throw new Error('Order not picked up');
+      if (order.status != OrderStatus.PICKED_UP)
+        throw new Error('Order not picked up');
       order.status = OrderStatus.DELIVERED;
       return await manager.save(order);
     });
@@ -239,7 +262,8 @@ if(!order) throw new Error('Order not found')
         where: { id },
       });
       if (!order) throw new Error('Order not found');
-      if(order.status != OrderStatus.DELIVERED) throw new Error('Order not delivered');
+      if (order.status != OrderStatus.DELIVERED)
+        throw new Error('Order not delivered');
       order.status = OrderStatus.COMPLETED;
       return await manager.save(order);
     });

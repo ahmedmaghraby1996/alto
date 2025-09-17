@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
+  IsBoolean,
   IsEmail,
   IsEnum,
   IsNotEmpty,
@@ -74,6 +76,17 @@ export class RegisterDriverRequest extends RegisterRequest {
   @ApiProperty()
   @IsString()
   id_number: string;
+
+@ApiPropertyOptional({ type: Boolean })
+@IsOptional()
+@Transform(({ value }) => {
+  if (typeof value === 'string') {
+    return value.toLowerCase() === 'true' || value === '1';
+  }
+  return Boolean(value);
+})
+@IsBoolean()
+  vehicle_has_cooling?: boolean;
 
   @ApiProperty()
   @IsString()
