@@ -63,12 +63,13 @@ export class OrderController {
   @Roles(Role.CLIENT, Role.DRIVER)
   @Get()
   async getAll(@Query() query: PaginatedRequest) {
-    applyQueryFilters(query, `user_id=${this.request.user.id}`);
+  
     applyQueryIncludes(query, 'driver');
     applyQueryIncludes(query, 'driver#user.vehicle_type');
     applyQueryIncludes(query, 'offers');
     if (this.request.user.roles.includes(Role.DRIVER)) {
       const driver = await this.orderService.getDriver();
+      console.log(driver);
       applyQueryFilters(query, `driver_id=${driver.id}`);
     }
 
