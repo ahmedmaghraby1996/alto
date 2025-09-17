@@ -29,6 +29,7 @@ import { OrderDetailsResponse } from './dto/response/order.detials.response';
 import {
   applyQueryFilters,
   applyQueryIncludes,
+  applyQuerySort,
 } from 'src/core/helpers/service-related.helper';
 import { OrderOfferResponse } from './dto/response/order-offer.response';
 @ApiTags('Order')
@@ -67,6 +68,7 @@ export class OrderController {
     applyQueryIncludes(query, 'driver');
     applyQueryIncludes(query, 'driver#user.vehicle_type');
     applyQueryIncludes(query, 'offers');
+    applyQuerySort(query, `created_at=desc`);
     if (this.request.user.roles.includes(Role.DRIVER)) {
       const driver = await this.orderService.getDriver();
       console.log(driver);
