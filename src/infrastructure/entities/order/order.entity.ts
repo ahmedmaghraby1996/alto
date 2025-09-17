@@ -89,6 +89,8 @@ export class Order extends AuditableEntity {
   @Column({ nullable: true })
   recipient_name: string;
 
+  offers_number?:number
+
   @Column({ nullable: true })
   recipient_phone: string;
 

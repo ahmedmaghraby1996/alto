@@ -140,6 +140,7 @@ export class OrderService extends BaseService<Order> {
         driver: { user: true, vehicle_type: true },
         truck_type: true,
         package_type: true,
+        offers:true
       },
     });
     if (!order) throw new Error('Order not found');
@@ -156,6 +157,7 @@ export class OrderService extends BaseService<Order> {
         order.sent_offer = false;
       }
     }
+    order.offers_number=order.offers?.length || 0;
     const order_offer = await this.orderOffer_repo.findOne({
       where: { order_id: id, status: OfferStatus.ACCEPTED },
     });

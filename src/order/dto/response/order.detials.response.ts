@@ -22,6 +22,8 @@ export class OrderDetailsResponse extends OrderListResponse {
 
   @Expose()
   sent_offer:boolean
+  @Expose()
+  offers_number:number
 
   @Expose()
   @Type(() => OrderOfferResponse)
