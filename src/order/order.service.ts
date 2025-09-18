@@ -73,10 +73,9 @@ export class OrderService extends BaseService<Order> {
     });
 
     if (existingOffer) {
-    return this.orderOffer_repo.save({
+      return this.orderOffer_repo.save({
         ...existingOffer,
         price: dto.price,
-      
       });
     }
     return this.orderOffer_repo.save({
@@ -144,7 +143,7 @@ export class OrderService extends BaseService<Order> {
         driver: { user: true, vehicle_type: true },
         truck_type: true,
         package_type: true,
-        offers:true
+        offers: true,
       },
     });
     if (!order) throw new Error('Order not found');
@@ -153,7 +152,11 @@ export class OrderService extends BaseService<Order> {
       this.request.user.roles[0] == Role.DRIVER
     ) {
       const sent_offer = await this.orderOffer_repo.findOne({
-        where: { order_id: id, driver: { user_id: this.request.user.id } },
+        where: {
+          order_id: id,
+          driver: { user_id: this.request.user.id },
+          status: OfferStatus.PENDING,
+        },
       });
       if (sent_offer) {
         order.sent_offer = true;
@@ -161,7 +164,7 @@ export class OrderService extends BaseService<Order> {
         order.sent_offer = false;
       }
     }
-    order.offers_number=order.offers?.length || 0;
+    order.offers_number = order.offers?.length || 0;
     const order_offer = await this.orderOffer_repo.findOne({
       where: { order_id: id, status: OfferStatus.ACCEPTED },
     });
@@ -215,7 +218,7 @@ export class OrderService extends BaseService<Order> {
   async cancelOffer(id: string) {
     return await this.dataSource.transaction(async (manager) => {
       const offer = await manager.findOne(this.orderOffer_repo.target, {
-        where: { order_id:id},
+        where: { order_id: id },
       });
       if (!offer) throw new Error('Offer not found');
 
