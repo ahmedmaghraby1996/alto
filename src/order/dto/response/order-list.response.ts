@@ -1,4 +1,4 @@
-import { Expose, plainToInstance, Transform } from 'class-transformer';
+import { Expose, plainToInstance, Transform, Type } from 'class-transformer';
 import { off } from 'process';
 import { UserResponse } from 'src/modules/user/dto/response/user-response';
 
@@ -13,12 +13,24 @@ export class OrderListResponse {
   is_fragile: boolean;
   @Expose()
   needs_freezing: boolean;
+    @Expose()
+  @Type(() => UserResponse)
+  user:UserResponse
   @Expose()
   needs_cooling: boolean;
   @Expose()
   pickup_address: string;
   @Expose()
   delivery_address: string;
+    @Expose()
+    pickup_latitude: number;
+  
+    @Expose()
+    pickup_longitude: number;
+    @Expose()
+    delivery_latitude: number;
+    @Expose()
+    delivery_longitude: number;
   @Expose()
   number: string;
   @Expose()

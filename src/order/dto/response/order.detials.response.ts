@@ -5,17 +5,7 @@ import { OrderOfferResponse } from './order-offer.response';
 import { UserResponse } from 'src/modules/user/dto/response/user-response';
 
 export class OrderDetailsResponse extends OrderListResponse {
-  @Expose()
-  pickup_latitude: number;
-  @Expose()
-  @Type(() => UserResponse)
-  user:UserResponse
-  @Expose()
-  pickup_longitude: number;
-  @Expose()
-  delivery_latitude: number;
-  @Expose()
-  delivery_longitude: number;
+
   @Expose()
   @Type(() => PackageType)
   package_type: PackageType;

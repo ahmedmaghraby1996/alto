@@ -64,7 +64,7 @@ export class OrderController {
   @Roles(Role.CLIENT, Role.DRIVER)
   @Get()
   async getAll(@Query() query: PaginatedRequest) {
-  
+    applyQueryIncludes(query, 'user');
     applyQueryIncludes(query, 'driver');
     applyQueryIncludes(query, 'driver#user.vehicle_type');
     applyQueryIncludes(query, 'offers');
