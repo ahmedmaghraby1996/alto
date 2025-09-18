@@ -73,7 +73,11 @@ export class OrderService extends BaseService<Order> {
     });
 
     if (existingOffer) {
-      throw new Error('Offer already exists');
+    return this.orderOffer_repo.save({
+        ...existingOffer,
+        price: dto.price,
+      
+      });
     }
     return this.orderOffer_repo.save({
       ...offer,
@@ -200,7 +204,7 @@ export class OrderService extends BaseService<Order> {
   async rejectOffer(id: string) {
     return await this.dataSource.transaction(async (manager) => {
       const offer = await manager.findOne(this.orderOffer_repo.target, {
-        where: { id },
+        where: { order_id:id },
       });
       if (!offer) throw new Error('Offer not found');
       offer.status = OfferStatus.REJECTED;
