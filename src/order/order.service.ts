@@ -21,6 +21,7 @@ import { Roles } from 'src/modules/authentication/guards/roles.decorator';
 import { Role } from 'src/infrastructure/data/enums/role.enum';
 import { DataSource } from 'typeorm';
 import { where } from 'sequelize';
+import { OrderReviewDto } from './dto/request/order-reveiw.dto';
 @Injectable()
 export class OrderService extends BaseService<Order> {
   constructor(
@@ -275,5 +276,31 @@ export class OrderService extends BaseService<Order> {
       order.status = OrderStatus.COMPLETED;
       return await manager.save(order);
     });
+  }
+
+  async rateOrder(req: OrderReviewDto) {
+    const order = await this.order_repo.findOne({
+      where: { id: req.order_id },
+    });
+    if (!order) throw new Error('Order not found');
+    if (order.status != OrderStatus.COMPLETED)
+      throw new Error('Order not completed');
+    if (this.request.user.roles[0] == Role.CLIENT) {
+      order.client_rate = req.rate;
+      order.client_comment = req.comment;
+    } else if (this.request.user.roles[0] == Role.DRIVER) {
+      order.driver_rate = req.rate;
+      order.driver_comment = req.comment;
+
+      const driver = await this.driverRepo.findOne({
+        where: { id: order.driver_id },
+      });
+      driver.total_rating = driver.total_rating + req.rate;
+      driver.number_of_ratings = driver.number_of_ratings + 1;
+      await this.driverRepo.save(driver);
+    } else {
+      throw new Error('Invalid role');
+    }
+    return this.order_repo.save(order);
   }
 }

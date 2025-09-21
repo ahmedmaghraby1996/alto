@@ -12,7 +12,12 @@ export class OrderOfferResponse {
   @Transform((value) => {
     return plainToInstance(
       UserResponse,
-      { ...value.obj?.driver?.user, rating: 0 },
+      {
+        ...value.obj?.driver?.user,
+        rating:
+          value.obj?.driver?.total_rating /
+          (value.obj?.driver?.number_of_ratings || 1),
+      },
       { excludeExtraneousValues: true },
     );
   })

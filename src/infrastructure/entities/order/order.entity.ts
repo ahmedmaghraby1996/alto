@@ -94,6 +94,15 @@ export class Order extends AuditableEntity {
   @Column({ nullable: true })
   recipient_phone: string;
 
+    @Column({ type: 'decimal', precision: 3, scale: 2, nullable: true })
+  driver_rate: number;
+  @Column({ nullable: true })
+  driver_comment: string;
+  @Column({ type: 'decimal', precision: 3, scale: 2, nullable: true })
+  client_rate: number;
+  @Column({ nullable: true })
+  client_comment: string;
+
   @BeforeInsert()
    beforeInsert() {
     const now = Date.now(); // current timestamp

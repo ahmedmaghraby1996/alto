@@ -32,6 +32,8 @@ import {
   applyQuerySort,
 } from 'src/core/helpers/service-related.helper';
 import { OrderOfferResponse } from './dto/response/order-offer.response';
+import { OrderReview } from 'src/infrastructure/entities/order/order-review.entity';
+import { OrderReviewDto } from './dto/request/order-reveiw.dto';
 @ApiTags('Order')
 @ApiHeader({
   name: 'Accept-Language',
@@ -165,6 +167,12 @@ export class OrderController {
   @Post('create-offer')
   async createOffer(@Body() req: CreateOfferDto) {
     return new ActionResponse(await this.orderService.createOffer(req));
+  }
+
+  @Roles(Role.CLIENT, Role.DRIVER)
+  @Post('rate')
+  async rateOrder(@Body() req: OrderReviewDto) {
+    return new ActionResponse(await this.orderService.rateOrder(req));
   }
 
   // @Get()

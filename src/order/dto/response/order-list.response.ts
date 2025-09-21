@@ -42,7 +42,7 @@ export class OrderListResponse {
 
     return {
       ...plainToInstance(UserResponse, obj.driver.user, { excludeExtraneousValues: true }),
-      rating: 0,
+      rating: obj.driver.total_rating / (obj.driver.number_of_ratings || 1),
       vehicle_type: obj.driver.vehicle_type,
       vehicle_number: obj.driver.vehicle_registration_number,
       latitude: obj.driver.latitude,
