@@ -25,6 +25,10 @@ export class FaqService extends BaseService<FaqQuestion> {
     });
   }
 
+  async getQuestions(): Promise<FaqQuestion[]> {
+    return await this.faq_question_repo.find();
+  }
+
   async getCategories() {
     const categories = await this.faq_category_repo.find();
     return categories;

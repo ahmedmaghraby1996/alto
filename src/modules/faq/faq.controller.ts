@@ -34,8 +34,8 @@ export class FaqController {
 
 
   @Get()
-  async getCategories() {
-    const res = await this.serivce.getCategories();
+  async getQuestions() {
+    const res = await this.serivce.getQuestions();
     const result = this._i18nResponse.entity(res, this.request.user['roles']);
     return new ActionResponse(result);
   }
