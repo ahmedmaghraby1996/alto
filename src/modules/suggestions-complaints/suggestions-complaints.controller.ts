@@ -17,7 +17,7 @@ import { PaginatedResponse } from 'src/core/base/responses/paginated.response';
 
 @ApiTags('Suggestions-complaints')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.ADMIN, )
+@Roles(Role.ADMIN,Role.CLIENT,Role.DRIVER )
 @ApiBearerAuth()
 @Controller('suggestions-complaints')
 export class SuggestionsComplaintsController {
