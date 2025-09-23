@@ -1,9 +1,10 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
-import { FaqQuestion } from "src/infrastructure/entities/faq/faq_question";
+
 import { FaqController } from "./faq.controller";
 import { FaqService } from "./faq.service";
+import { FaqQuestion } from "./faq/faq_question";
 
 @Module({
   
