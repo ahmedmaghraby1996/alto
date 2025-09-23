@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Inject, Param, Post, Put, UseGuards } fr
 import { FaqService } from './faq.service';
 
 import { ApiBearerAuth, ApiHeader, ApiTags } from '@nestjs/swagger';
-import { FaqQuestion } from 'src/infrastructure/entities/faq/faq_question';
+
 import { I18nResponse } from 'src/core/helpers/i18n.helper';
 import { ActionResponse } from 'src/core/base/responses/action.response';
 import { REQUEST } from '@nestjs/core';
@@ -13,6 +13,7 @@ import { JwtAuthGuard } from '../authentication/guards/jwt-auth.guard';
 import { RolesGuard } from '../authentication/guards/roles.guard';
 import { CreateFaqRequest, UpdateFaqRequest } from './dto/create-faq.request';
 import { plainToInstance } from 'class-transformer';
+import { FaqQuestion } from './faq/faq_question';
 
 @Controller('faq')
 @ApiTags('Faq')
@@ -31,9 +32,16 @@ export class FaqController {
     @Inject(REQUEST) private readonly request: Request,
   ) {}
 
+
   @Get()
-  async getQuestion() {
-    const res = await this.serivce.getQuestion();
+  async getCategories() {
+    const res = await this.serivce.getCategories();
+    const result = this._i18nResponse.entity(res, this.request.user['roles']);
+    return new ActionResponse(result);
+  }
+  @Get('/category/:id')
+  async getQuestion(@Param('id') id: string) {
+    const res = await this.serivce.getQuestion(id);
     const result = this._i18nResponse.entity(res, this.request.user.roles);
     return new ActionResponse(result);
   }

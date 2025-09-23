@@ -7,7 +7,7 @@ import { Wallet } from '../entities/wallet/wallet.entity';
 import { NotificationEntity } from '../entities/notification/notification.entity';
 
 import { SuggestionsComplaints } from '../entities/suggestions-complaints/suggestions-complaints.entity';
-import { FaqQuestion } from '../entities/faq/faq_question';
+
 import { StaticPage } from '../entities/static-pages/static-pages.entity';
 import { ContactUs } from '../entities/contact-us/contact-us.entity';
 import { City } from '../entities/city/city.entity';
@@ -24,6 +24,8 @@ import { Order } from '../entities/order/order.entity';
 import { PackageType } from '../entities/order/package-type.entity';
 import { OfferStatus } from '../data/enums/order-status.enumt';
 import { OrderOffer } from '../entities/order/order-offer.entity';
+import { FaqCategory } from 'src/modules/faq/faq/faq-category';
+import { FaqQuestion } from 'src/modules/faq/faq/faq_question';
 
 export const DB_ENTITIES = [
   User,
@@ -46,6 +48,7 @@ export const DB_ENTITIES = [
   ContactUs,
   City,
   Country,
+  FaqCategory,
 
   Chat,
   Message,

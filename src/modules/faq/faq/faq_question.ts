@@ -19,6 +19,8 @@ descrption_ar:string
 descrption_en:string
 @ManyToOne(()=>FaqCategory,faq_category=>faq_category.questions)
 category:FaqCategory
+@Column({nullable:true})
+category_id:string
 
 
 constructor(partial: Partial<FaqQuestion>) {
