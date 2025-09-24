@@ -46,8 +46,8 @@ export class User extends AuditableEntity {
   @OneToMany(()=>Chat, (chat) => chat.client)
   client_chats: Chat[]
 
-  @OneToMany(()=>Chat, (chat) => chat.store)
-  store_chats: Chat[]
+  @OneToMany(()=>Chat, (chat) => chat.driver)
+  driver_chats: Chat[]
 
   @OneToMany(() => NotificationEntity, (notification) => notification.user)
   notifications: NotificationEntity[];

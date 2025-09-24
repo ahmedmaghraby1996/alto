@@ -25,12 +25,12 @@ export class Chat extends AuditableEntity {
   @Column({ nullable: true })
   client_id: string;
 
-  @ManyToOne(() => User, (user) => user.store_chats)
+  @ManyToOne(() => User, (user) => user.driver_chats)
   @JoinColumn({ name: 'store_id' })
-  store: User;
+  driver: User;
 
   @Column({ nullable: true })
-  store_id: string;
+  driver_id: string;
 
   @OneToMany(() => Message, (message) => message.chat)
   messages: Message[];
