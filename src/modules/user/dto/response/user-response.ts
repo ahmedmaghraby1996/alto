@@ -27,6 +27,9 @@ export class UserResponse {
   rating: number;
 
   @Expose()
+  notification_is_active: boolean;
+
+  @Expose()
   @Transform((value) => {
     return value.obj?.city
       ? {
