@@ -7,18 +7,8 @@ export class ChatResponse {
   @Expose() id: string;
   @Expose() @Type(() => UserResponse) client: UserResponse;
   @Expose()
-  @Transform((value) => {
-    return value.obj?.store
-      ? plainToInstance(
-          UserResponse,
-          { ...value.obj.store, avatar: value.obj?.store?.stores[0]?.logo },
-          {
-            excludeExtraneousValues: true,
-          },
-        )
-      : null;
-  })
-    store: any;
+  @Type(() => UserResponse)
+    driver: UserResponse;
   @Expose()
   @Type(() => MessageRespone)
   last_message: MessageRespone;

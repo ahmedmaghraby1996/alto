@@ -21,14 +21,14 @@ export class ChatController {
   schema: {
     type: 'object',
     properties: {
-      store_id: { type: 'string', example: 'store-uuid-456' },
+      driver_id: { type: 'string', example: 'store-uuid-456' },
     },
     required: ['store_id'],
   },
 })
-  async startChat(@Body() body: {  store_id: string }) {
+  async startChat(@Body() body: {  driver_id: string }) {
     return new ActionResponse(
-      await this.chatService.startChat( body.store_id),
+      await this.chatService.startChat( body.driver_id),
     );
   }
 
