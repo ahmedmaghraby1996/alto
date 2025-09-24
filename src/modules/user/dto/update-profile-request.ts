@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsEmail,
   IsEnum,
   IsNotEmpty,
@@ -13,10 +14,7 @@ import { Gender } from 'src/infrastructure/data/enums/gender.enum';
 import { Language } from 'src/infrastructure/data/enums/language.enum';
 import { Role } from 'src/infrastructure/data/enums/role.enum';
 
-
 export class UpdateProfileRequest {
-
-
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
@@ -27,12 +25,10 @@ export class UpdateProfileRequest {
   @IsString()
   password: string;
 
-
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
   city_id: string;
-
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -51,7 +47,7 @@ export class UpdateProfileRequest {
   @IsEnum(Gender)
   gender: Gender;
   @ApiPropertyOptional()
- @IsOptional()
+  @IsOptional()
   @Unique('User')
   phone: string;
 
@@ -59,15 +55,25 @@ export class UpdateProfileRequest {
   @IsOptional()
   avatarFile: Express.Multer.File;
 
-  @ApiProperty({ type: 'enum', required: false,enum:[Language.EN,Language.AR] })
+  @ApiProperty({
+    type: 'enum',
+    required: false,
+    enum: [Language.EN, Language.AR],
+  })
   @IsEnum(Language)
   @IsOptional()
   language: Language;
 
-  @ApiProperty({required:false})
+  @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
   fcm_token: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Transform(({ value }) => value === 'true')
+  @IsBoolean()
+  notification_is_active: string;
 
   // @ApiProperty({required:false})
   // @Transform(({ value }) => value.split(','))
