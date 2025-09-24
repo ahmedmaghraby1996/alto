@@ -26,7 +26,7 @@ export class Chat extends AuditableEntity {
   client_id: string;
 
   @ManyToOne(() => User, (user) => user.driver_chats)
-  @JoinColumn({ name: 'store_id' })
+  @JoinColumn({ name: 'driver_id' })
   driver: User;
 
   @Column({ nullable: true })
