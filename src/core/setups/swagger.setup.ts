@@ -6,6 +6,7 @@ import { AddressModule } from 'src/modules/address/address.module';
 
 import { AuthenticationModule } from 'src/modules/authentication/authentication.module';
 import { BanarModule } from 'src/modules/banar/banar.module';
+import { ChatModule } from 'src/modules/chat/chat.module';
 
 import { ContactUsModule } from 'src/modules/contact-us/contact-us.module';
 import { FaqModule } from 'src/modules/faq/faq.module';
@@ -55,7 +56,8 @@ export default (app: INestApplication, config: ConfigService) => {
       FileModule,
       BanarModule,
       OrderModule,
-      AddressModule
+      AddressModule,
+      ChatModule
   
       // TransactionModule,
     ],
