@@ -14,6 +14,8 @@ import { SendEmailModule } from './send-email/send-email.module';
 import { FileModule } from './file/file.module';
 import { BanarModule } from './banar/banar.module';
 import { AddressModule } from './address/address.module';
+import { Chat } from 'src/infrastructure/entities/chat/chat.entity';
+import { ChatModule } from './chat/chat.module';
 
 
 @Module({
@@ -26,7 +28,7 @@ import { AddressModule } from './address/address.module';
     SendEmailModule,
     TransactionModule,
     AddressModule,
-
+    ChatModule,
     FileModule,
     BanarModule,
  
