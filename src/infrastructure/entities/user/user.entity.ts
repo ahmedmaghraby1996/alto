@@ -59,6 +59,9 @@ export class User extends AuditableEntity {
   @Column({ length: 100 })
   name: string;
 
+  @Column({default:true})
+   notification_is_active:boolean
+
   @OneToMany(
     () => SuggestionsComplaints,
     (suggestionsComplaints) => suggestionsComplaints.user,

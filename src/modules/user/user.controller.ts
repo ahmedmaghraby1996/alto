@@ -184,6 +184,7 @@ export class UserController {
           avatar: user.avatar,
           role: user.roles[0],
           created_at: user.created_at,
+          notification_is_active: user.notification_is_active,
 
           city: user.city,
         }),
