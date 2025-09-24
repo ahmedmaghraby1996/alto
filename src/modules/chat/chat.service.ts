@@ -103,6 +103,7 @@ async getUserChats() {
     .createQueryBuilder('chat')
     .leftJoinAndSelect('chat.client', 'client')
     .leftJoinAndSelect('chat.messages', 'message')
+    .leftJoinAndSelect('chat.driver', 'driver')
     .leftJoin(
       `(${subQuery.getQuery()})`,
       'latest',
