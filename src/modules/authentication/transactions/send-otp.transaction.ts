@@ -26,12 +26,13 @@ export class SendOtpTransaction extends BaseTransaction<
     context: EntityManager,
   ): Promise<string> {
     try {
+
       const user = await context.findOneBy(User, {
         [req.type]: req.username,
          roles: req.role
       })
       // check if user roles contains the role that we're trying to send otp to
-      if (!user )
+      if (!user && req.type!='edit_phone' )
         throw new BadRequestException('message.invalid_credentials');
 
       const appEnv = this._config.get('app.env');
