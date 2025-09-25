@@ -45,7 +45,7 @@ export class SendOtpTransaction extends BaseTransaction<
       // delete old otp
       await context.delete(Otp, {
         type: req.type,
-        username: user[req.type],
+        username: req.username,
       });
       // save otp
       await context.save(Otp, otp);
