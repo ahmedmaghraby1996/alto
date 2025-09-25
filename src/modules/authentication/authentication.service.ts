@@ -30,6 +30,7 @@ import { RequestResetPassword } from './dto/requests/request-reset-password';
 import { SendEmailService } from '../send-email/send-email.service';
 import { TruckSize } from 'src/infrastructure/entities/truck/truck-size.entity';
 import { TruckType } from 'src/infrastructure/entities/truck/truck-type.entity';
+import { VerifyPhoneTransaction } from './transactions/edit-phone.transaction';
 
 
 
@@ -54,6 +55,9 @@ export class AuthenticationService {
     @Inject(ConfigService) private readonly _config: ConfigService,
     @InjectRepository(TruckSize) private readonly truckSizeRepo: Repository<TruckSize>,
     @InjectRepository(TruckType) private readonly truckTypeRepo: Repository<TruckType>,
+  @Inject(VerifyPhoneTransaction)
+    private readonly verifyPhoneTransaction: VerifyPhoneTransaction,
+
   ) {}
 
   async validateUser(req: LoginRequest): Promise<any> {
@@ -81,6 +85,10 @@ export class AuthenticationService {
 
   async getTruckSizes() {
     return await this.truckSizeRepo.find();
+  }
+
+    async verifyPhone(req: VerifyOtpRequest) {
+    return await this.verifyPhoneTransaction.run(req);
   }
 
   async login(user: any) {

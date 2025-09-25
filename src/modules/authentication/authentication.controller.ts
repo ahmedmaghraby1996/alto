@@ -58,6 +58,7 @@ import {
 
 import { City } from 'src/infrastructure/entities/city/city.entity';
 import { toUrl } from 'src/core/helpers/file.helper';
+import { UserResponse } from '../user/dto/response/user-response';
 
 @ApiTags(Router.Auth.ApiTag)
 @Controller(Router.Auth.Base)
@@ -306,5 +307,20 @@ SET city.order_by = RankedCities.new_order;
     const result = await this.authService.resetPassword(resetToken, req);
 
     return new ActionResponse<AuthResponse>(result);
+  }
+
+
+
+    @UseGuards(JwtAuthGuard, RolesGuard)
+  @Post(Router.Auth.VerifyPhone)
+  async verifyPhone(
+    @Body() req: VerifyOtpRequest,
+  ): Promise<ActionResponse<UserResponse>> {
+    const data = await this.authService.verifyPhone(req);
+
+    const result = plainToInstance(UserResponse, data, {
+      excludeExtraneousValues: true,
+    });
+    return new ActionResponse<UserResponse>(result);
   }
 }

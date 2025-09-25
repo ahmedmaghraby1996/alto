@@ -19,6 +19,9 @@ export abstract class Router {
     /** * verify-otp */
     static VerifyOtp = 'verify-otp';
 
+       /** * verify-phone */
+    static VerifyPhone = 'verify-phone';
+
         /** request reset password */
         static RequestResetPasswordEmail = 'request-reset-password';
 
