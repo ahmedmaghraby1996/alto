@@ -28,7 +28,7 @@ export class SendOtpTransaction extends BaseTransaction<
     try {
 
       const user = await context.findOneBy(User, {
-        [req.type]: req.username,
+        [req.type=='edit_phone'?'phone':req.type]: req.username,
          roles: req.role
       })
       // check if user roles contains the role that we're trying to send otp to
