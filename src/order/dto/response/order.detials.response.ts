@@ -22,6 +22,17 @@ export class OrderDetailsResponse extends OrderListResponse {
   @Expose()
   @Type(() => OrderOfferResponse)
   offer:OrderOfferResponse
+
+  @Expose()
+  driver_rate: number
+  @Expose()
+  driver_comment: string
+  @Expose()
+  client_rate: number
+  @Expose()
+  client_comment: string
+
+
   
 
 
