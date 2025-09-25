@@ -27,14 +27,15 @@ export class SendOtpTransaction extends BaseTransaction<
   ): Promise<string> {
     try {
 
+      if(req.type!='edit_phone'){
       const user = await context.findOneBy(User, {
-        [req.type=='edit_phone'?'phone':req.type]: req.username,
+        [req.type]: req.username,
          roles: req.role
       })
       // check if user roles contains the role that we're trying to send otp to
-      if (!user && req.type!='edit_phone' )
+      if (!user )
         throw new BadRequestException('message.invalid_credentials');
-
+    }
       const appEnv = this._config.get('app.env');
       // generate code
       const code = '1234' 
