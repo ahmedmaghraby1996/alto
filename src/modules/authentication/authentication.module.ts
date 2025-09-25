@@ -18,6 +18,7 @@ import { TransactionService } from '../transaction/transaction.service';
 import { FirebaseAdminService } from '../notification/firebase-admin-service';
 import { SendEmailModule } from '../send-email/send-email.module';
 import { SendEmailService } from '../send-email/send-email.service';
+import { VerifyPhoneTransaction } from './transactions/edit-phone.transaction';
 
 @Global()
 @Module({
@@ -34,7 +35,8 @@ import { SendEmailService } from '../send-email/send-email.service';
     FileService,
     NotificationService,
     FcmIntegrationService
-    ,TransactionService
+    ,TransactionService,
+    VerifyPhoneTransaction
 
   ],
   exports: [AuthenticationService],
