@@ -131,6 +131,7 @@ export class OrderService extends BaseService<Order> {
       `,
         { driverCooling: driver.vehicle_has_cooling },
       )
+      .addOrderBy('order.created_at', 'DESC')
       .getMany();
 
     return offers;

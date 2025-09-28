@@ -34,7 +34,6 @@ export class UpdateProfileRequest {
   @IsOptional()
   @IsNotEmpty()
   @IsEmail()
-  @Unique('User')
   email?: string;
   @ApiPropertyOptional()
   @IsOptional()
