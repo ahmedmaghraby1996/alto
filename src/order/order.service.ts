@@ -180,6 +180,7 @@ export class OrderService extends BaseService<Order> {
     const offers = await this.orderOffer_repo.find({
       where: { order_id: id },
       relations: { driver: { user: true } },
+      order: { created_at: 'DESC' },
     });
     return offers;
   }
