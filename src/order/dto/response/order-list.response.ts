@@ -56,4 +56,7 @@ export class OrderListResponse {
     return plainToInstance(UserResponse, value.obj?.offers?.length);
   })
   offers_count: number;
+
+  @Expose()
+  trucks_count: number;
 }
