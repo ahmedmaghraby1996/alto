@@ -1,6 +1,20 @@
-import { Controller, Post, Body, Get, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { ApiTags, ApiParam, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiParam,
+  ApiBody,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { ActionResponse } from 'src/core/base/responses/action.response';
 import { JwtAuthGuard } from '../authentication/guards/jwt-auth.guard';
 import { RolesGuard } from '../authentication/guards/roles.guard';
@@ -8,28 +22,27 @@ import { plainToInstance } from 'class-transformer';
 import { ChatResponse } from './dto/chat.response';
 import { MessageRespone } from './dto/message.response';
 import { ChatGateway } from 'src/integration/gateways/chat.gateway';
+import { PaginatedResponse } from 'src/core/base/responses/paginated.response';
 
 @ApiTags('Chat')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 @Controller('chat')
 export class ChatController {
-  constructor(private chatService: ChatService,) {}
+  constructor(private chatService: ChatService) {}
 
   @Post('start')
- @ApiBody({
-  schema: {
-    type: 'object',
-    properties: {
-      driver_id: { type: 'string', example: 'store-uuid-456' },
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        driver_id: { type: 'string', example: 'store-uuid-456' },
+      },
+      required: ['store_id'],
     },
-    required: ['store_id'],
-  },
-})
-  async startChat(@Body() body: {  driver_id: string }) {
-    return new ActionResponse(
-      await this.chatService.startChat( body.driver_id),
-    );
+  })
+  async startChat(@Body() body: { driver_id: string }) {
+    return new ActionResponse(await this.chatService.startChat(body.driver_id));
   }
 
   @Post(':chat_id/send')
@@ -49,11 +62,11 @@ export class ChatController {
     },
   })
   async sendMessage(
-    @Param('chat_id') chat_id: string,
+    @Param('driver_id') driver_id: string,
     @Body() body: { sender_id: string; content: string },
   ) {
     return new ActionResponse(
-      await this.chatService.sendMessage(chat_id, body.content),
+      await this.chatService.sendMessage(driver_id, body.content),
     );
   }
 
@@ -64,23 +77,61 @@ export class ChatController {
     type: String,
     description: 'ID of the chat',
   })
-  async getMessages(@Param('chat_id') chat_id: string) {
-    return new ActionResponse(
-      plainToInstance(
-        MessageRespone,
-        await this.chatService.getMessages(chat_id),{
-          excludeExtraneousValues: true,}
-      ),
-      
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number (starting from 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of messages per page',
+  })
+  async getMessages(
+    @Param('chat_id') chat_id: string,
+    @Query('page') page = 1,
+    @Query('limit') limit = 20,
+  ) {
+    const messages = await this.chatService.getMessages(
+      chat_id,
+      Number(page),
+      Number(limit),
+    );
+
+    return new PaginatedResponse(
+      plainToInstance(MessageRespone, messages.items, {
+        excludeExtraneousValues: true,
+      }),
+      { meta: { total: messages.total, page, limit } },
     );
   }
 
   @Get('all')
-  async getChats() {
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number (starting from 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of chats per page',
+  })
+  async getChats(@Query('page') page = 1, @Query('limit') limit = 20) {
+    const { items, total } = await this.chatService.getUserChats(
+      Number(page),
+      Number(limit),
+    );
+
     return new ActionResponse(
-      plainToInstance(ChatResponse, await this.chatService.getUserChats(),{
-        excludeExtraneousValues: true,
-      }),
+      plainToInstance(ChatResponse, items, { excludeExtraneousValues: true }),
+      {
+        meta: { total: total, page, limit },
+      },
     );
   }
 }

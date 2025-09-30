@@ -14,10 +14,12 @@ import { ChatGateway } from 'src/integration/gateways/chat.gateway';
 import { plainToInstance } from 'class-transformer';
 import { MessageRespone } from './dto/message.response';
 import { Order } from 'src/infrastructure/entities/order/order.entity';
+import { BaseUserService } from 'src/core/base/service/user-service.base';
+import { BaseService } from 'src/core/base/service/service.base';
 
 
 @Injectable()
-export class ChatService {
+export class ChatService extends BaseService<Chat> {
   constructor(
     @InjectRepository(Chat) private chatRepo: Repository<Chat>,
     @InjectRepository(Message) private msgRepo: Repository<Message>,
@@ -25,7 +27,9 @@ export class ChatService {
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(Order) private orderRepo: Repository<Order>,
     private readonly chatGateway: ChatGateway,
-  ) {}
+  ) {
+    super( chatRepo);
+  }
 // 
   async startChat(driver_id: string): Promise<Chat> {
     const clientId = this.request.user.id;
@@ -46,21 +50,24 @@ export class ChatService {
     return await this.chatRepo.save(newChat);
   }
 
-  async sendMessage(chatId: string, content: string): Promise<Message> {
+  async sendMessage(driver_id: string, content: string): Promise<Message> {
+ const start_chat=   await this.startChat(driver_id);
+
+
     const senderId = this.request.user.id;
     const message = this.msgRepo.create({
-      chat_id: chatId,
+      chat_id: start_chat.id,
       sender_id: senderId,
       content,
     });
 
     await this.msgRepo.save(message);
     const chat = await this.chatRepo.findOne({
-      where: { id: chatId },
+      where: { id: start_chat.id },
       relations: {},
     });
         this.chatGateway.server.emit(
-      'new-message-' + chatId,
+      'new-message-' + start_chat.id ,
       plainToInstance(MessageRespone, {...message, sender: this.request.user}, {
         excludeExtraneousValues: true,
       }),
@@ -68,21 +75,35 @@ export class ChatService {
     return message;
   }
 
-  async getMessages(chatId: string): Promise<Message[]> {
-    await this.msgRepo.update(
-      { chat_id: chatId, is_seen: false },
-      { is_seen: true },
-    );
+async getMessages(
+  chatId: string,
+  page = 1,
+  limit = 20,
+): Promise<{ items: Message[]; total: number }> {
+  // Mark unseen messages as seen
+  await this.msgRepo.update(
+    { chat_id: chatId, is_seen: false },
+    { is_seen: true },
+  );
 
-    return await this.msgRepo.find({
-      where: { chat: { id: chatId } },
-      relations: ['sender'],
-      order: { created_at: 'ASC' },
-    });
-  }
+  // Fetch messages with pagination
+  const [items, total] = await this.msgRepo.findAndCount({
+    where: { chat: { id: chatId } },
+    relations: ['sender'],
+    order: { created_at: 'ASC' },
+    skip: (page - 1) * limit,
+    take: limit,
+  });
+
+  return { items, total };
+}
+
 
   // chat.service.ts (continued)
-async getUserChats() {
+async getUserChats(
+  page = 1,
+  limit = 20,
+): Promise<{ items: any[]; total: number }> {
   const roles = this.request.user.roles;
   const userId = this.request.user.id;
 
@@ -98,8 +119,8 @@ async getUserChats() {
     .addSelect('MAX(m.created_at)', 'last_created_at')
     .groupBy('m.chat_id');
 
-  // Main query: Join latest message per chat + store.store with is_main = true
-  const chats = await this.chatRepo
+  // Base query
+  const qb = this.chatRepo
     .createQueryBuilder('chat')
     .leftJoinAndSelect('chat.client', 'client')
     .leftJoinAndSelect('chat.messages', 'message')
@@ -111,17 +132,25 @@ async getUserChats() {
     )
     .where(`${roleColumn} = :userId`, { userId })
     .orderBy('latest.last_created_at', 'DESC')
-    .setParameters(subQuery.getParameters())
-    .getMany();
+    .setParameters(subQuery.getParameters());
+
+  // Pagination
+  const [chats, total] = await qb
+    .skip((page - 1) * limit)
+    .take(limit)
+    .getManyAndCount();
 
   // Simplify the last message
-  return chats.map((chat) => {
+  const items = chats.map((chat) => {
     const lastMessage = chat.messages?.[0] ?? null;
     return {
       ...chat,
       last_message: lastMessage,
     };
   });
+
+  return { items, total };
 }
+
 
 }
