@@ -90,7 +90,7 @@ async getMessages(
   const [items, total] = await this.msgRepo.findAndCount({
     where: { chat: { id: chatId } },
     relations: ['sender'],
-    order: { created_at: 'ASC' },
+    order: { created_at: 'desc' },
     skip: (page - 1) * limit,
     take: limit,
   });
