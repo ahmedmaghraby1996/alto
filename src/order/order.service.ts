@@ -22,6 +22,7 @@ import { Role } from 'src/infrastructure/data/enums/role.enum';
 import { DataSource } from 'typeorm';
 import { where } from 'sequelize';
 import { OrderReviewDto } from './dto/request/order-reveiw.dto';
+import { Chat } from 'src/infrastructure/entities/chat/chat.entity';
 @Injectable()
 export class OrderService extends BaseService<Order> {
   constructor(
@@ -35,6 +36,7 @@ export class OrderService extends BaseService<Order> {
     @InjectRepository(Driver) private readonly driver_repo: Repository<Driver>,
     @Inject(DataSource) private readonly dataSource: DataSource,
     @InjectRepository(Driver) private readonly driverRepo: Repository<Driver>,
+    @InjectRepository(Chat) private readonly chatRepo: Repository<Chat>,
   ) {
     super(order_repo);
   }
@@ -170,8 +172,17 @@ export class OrderService extends BaseService<Order> {
     const order_offer = await this.orderOffer_repo.findOne({
       where: { order_id: id, status: OfferStatus.ACCEPTED },
     });
+    const chat=await this.chatRepo.findOne({
+      where:{
+        client_id:order.user_id, 
+        driver_id:order.driver_id
+    
+      }
+    }) 
+   
     return {
       ...order,
+      chat_id:chat?.id,
       offer: order_offer,
     };
   }
