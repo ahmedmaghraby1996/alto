@@ -113,26 +113,27 @@ async getUserChats(
 
   // Subquery: Get latest message per chat
   const subQuery = this.chatRepo
-    .createQueryBuilder('chat')
-    .leftJoin('chat.messages', 'm')
+    .createQueryBuilder('c')
+    .leftJoin('c.messages', 'm')
     .select('m.chat_id', 'chat_id')
     .addSelect('MAX(m.created_at)', 'last_created_at')
     .groupBy('m.chat_id');
 
-  // Base query
+  // Main query
   const qb = this.chatRepo
     .createQueryBuilder('chat')
     .leftJoinAndSelect('chat.client', 'client')
-    .leftJoinAndSelect('chat.messages', 'message')
     .leftJoinAndSelect('chat.driver', 'driver')
+    .leftJoinAndSelect('chat.messages', 'message')
     .leftJoin(
       `(${subQuery.getQuery()})`,
       'latest',
       'latest.chat_id = chat.id AND message.created_at = latest.last_created_at',
     )
     .where(`${roleColumn} = :userId`, { userId })
-    .orderBy('latest.last_created_at', 'DESC')
-    .setParameters(subQuery.getParameters());
+    .setParameters(subQuery.getParameters())
+    .addSelect('latest.last_created_at') // ✅ make the subquery column usable
+    .orderBy('latest.last_created_at', 'DESC');
 
   // Pagination
   const [chats, total] = await qb
@@ -140,7 +141,7 @@ async getUserChats(
     .take(limit)
     .getManyAndCount();
 
-  // Simplify the last message
+  // Simplify last message
   const items = chats.map((chat) => {
     const lastMessage = chat.messages?.[0] ?? null;
     return {
