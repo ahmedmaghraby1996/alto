@@ -31,30 +31,38 @@ export class ChatService extends BaseService<Chat> {
     super( chatRepo);
   }
 // 
-  async startChat(order_id: string): Promise<Chat> {
-    const clientId = this.request.user.id;
-    const order=await this.orderRepo.findOne({where:{id:order_id}})
-    if(!order){
-      throw new NotFoundException('Order not found');
-    }
-    if(order.driver_id==null){
-      throw new NotFoundException('Order has no driver yet');
-    }
+ async startChat(order_id: string): Promise<Chat> {
+  const clientId = this.request.user.id;
+  const order = await this.orderRepo.findOne({ where: { id: order_id } });
 
-    const existing = await this.chatRepo.findOne({
-      where: { client: { id: clientId }, driver: { id: order.driver_id } },
-    });
-
-    if (existing) return existing;
-
- const newChat = this.chatRepo.create({
-  client: { id: clientId },
-  driver: { id: order.driver_id },
-});
-    await this.orderRepo.update({id:order_id},{chat_id:newChat.id})
-    return await this.chatRepo.save(newChat);
-
+  if (!order) {
+    throw new NotFoundException('Order not found');
   }
+  if (!order.driver_id) {
+    throw new NotFoundException('Order has no driver yet');
+  }
+
+  // Check if chat already exists
+  const existing = await this.chatRepo.findOne({
+    where: { client: { id: clientId }, driver: { id: order.driver_id } },
+  });
+  if (existing) return existing;
+
+  // Create new chat
+  const newChat = this.chatRepo.create({
+    client: { id: clientId },
+    driver: { id: order.driver_id },
+  });
+
+  // Save chat first
+  const savedChat = await this.chatRepo.save(newChat);
+
+  // Now update order with saved chat id
+  await this.orderRepo.update({ id: order_id }, { chat_id: savedChat.id });
+
+  return savedChat;
+}
+
 
   async sendMessage(order_id: string, content: string): Promise<Message> {
  const start_chat=   await this.startChat(order_id);
