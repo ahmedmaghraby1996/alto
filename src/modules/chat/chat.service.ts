@@ -120,7 +120,7 @@ async getUserChats(
 
   const [chats, total] = await this.chatRepo.findAndCount({
     where: { [roleColumn]: userId },
-    relations: ['client', 'driver', 'last_message'], // load relations you need
+    relations: {client: true, driver: true, last_message: true},// load relations you need
     order: { created_at: "DESC" }, // sort by last_message
     skip: (page - 1) * limit,
     take: limit,
