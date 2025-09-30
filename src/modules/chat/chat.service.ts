@@ -34,7 +34,7 @@ export class ChatService extends BaseService<Chat> {
 async startChat(order_id: string): Promise<Chat> {
   const clientId = this.request.user.id;
 
-  const order = await this.orderRepo.findOne({ where: { id: order_id } });
+  const order = await this.orderRepo.findOne({ where: { id: order_id }, relations: { driver: true } });
   if (!order) {
     throw new NotFoundException('Order not found');
   }
@@ -51,7 +51,7 @@ async startChat(order_id: string): Promise<Chat> {
   // ✅ Create chat using raw IDs only
   const newChat = this.chatRepo.create({
     client_id: clientId,
-    driver_id: order.driver_id,
+    driver: order.driver,
   });
 
   // Save the chat first
