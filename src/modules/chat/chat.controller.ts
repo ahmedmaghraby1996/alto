@@ -62,11 +62,11 @@ export class ChatController {
     },
   })
   async sendMessage(
-    @Param('driver_id') driver_id: string,
+    @Param('order_id') order_id: string,
     @Body() body: { sender_id: string; content: string },
   ) {
     return new ActionResponse(
-      await this.chatService.sendMessage(driver_id, body.content),
+      await this.chatService.sendMessage(order_id, body.content),
     );
   }
 

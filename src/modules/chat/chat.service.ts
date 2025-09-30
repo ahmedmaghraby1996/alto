@@ -47,10 +47,10 @@ export class ChatService extends BaseService<Chat> {
 
     if (existing) return existing;
 
-    const newChat = new Chat({
-      client_id: clientId,
-      driver_id: order.driver_id,
-    });
+ const newChat = this.chatRepo.create({
+  client: { id: clientId },
+  driver: { id: order.driver_id },
+});
     await this.orderRepo.update({id:order_id},{chat_id:newChat.id})
     return await this.chatRepo.save(newChat);
 
