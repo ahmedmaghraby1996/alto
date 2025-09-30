@@ -45,9 +45,9 @@ export class ChatController {
     return new ActionResponse(await this.chatService.startChat(body.driver_id));
   }
 
-  @Post(':chat_id/send')
+  @Post(':driver_id/send')
   @ApiParam({
-    name: 'chat_id',
+    name: 'driver_id',
     required: true,
     type: String,
     description: 'ID of the chat',
