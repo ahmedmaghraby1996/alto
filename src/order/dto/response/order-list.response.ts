@@ -59,4 +59,7 @@ export class OrderListResponse {
 
   @Expose()
   trucks_count: number;
-}
+  
+  @Expose()
+  chat_id: string;}
+  
