@@ -78,7 +78,7 @@ export class ChatService extends BaseService<Chat> {
         excludeExtraneousValues: true,
       }),
     );
-    await this.chatRepo.update({id:start_chat.id},{last_message:content})
+    await this.chatRepo.update({id:start_chat.id},{last_message_id:message.id})
     return message;
   }
 
