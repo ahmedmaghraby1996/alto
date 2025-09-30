@@ -35,7 +35,7 @@ export class Chat extends AuditableEntity {
   @OneToMany(() => Message, (message) => message.chat)
   messages: Message[];
   @ManyToOne(() => Message)
-  @JoinColumn({ name: 'last_message' })
+  @JoinColumn()
   last_message: Message;
   @Column({nullable:true})
   last_message_id: string;
