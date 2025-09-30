@@ -115,8 +115,8 @@ async getUserChats(
   const userId = this.request.user.id;
 
   const roleColumn = roles.includes(Role.CLIENT)
-    ? 'chat.client_id'
-    : 'chat.driver_id';
+    ? 'client_id'
+    : 'driver_id';
 
   const [chats, total] = await this.chatRepo.findAndCount({
     where: { [roleColumn]: userId },
