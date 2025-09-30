@@ -182,7 +182,6 @@ export class OrderService extends BaseService<Order> {
    
     return {
       ...order,
-      chat_id:chat?.id,
       offer: order_offer,
     };
   }
