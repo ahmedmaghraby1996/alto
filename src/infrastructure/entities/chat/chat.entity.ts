@@ -36,9 +36,9 @@ export class Chat extends AuditableEntity {
   messages: Message[];
   @ManyToOne(() => Message)
   @JoinColumn({ name: 'last_message' })
-  lastMessage: Message;
+  last_message: Message;
   @Column({nullable:true})
-  last_message: string;
+  last_message_id: string;
    
 
   constructor(partial: Partial<Chat>) {
