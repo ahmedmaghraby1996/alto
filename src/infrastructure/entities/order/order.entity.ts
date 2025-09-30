@@ -81,6 +81,9 @@ export class Order extends AuditableEntity {
   @Column({ default: false })
   is_fragile: boolean;
 
+  @Column({ nullable: true })
+  chat_id: string;
+
   @Column({ default: false })
   needs_cooling: boolean;
   @Column({ default: false })

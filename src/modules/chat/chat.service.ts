@@ -31,27 +31,33 @@ export class ChatService extends BaseService<Chat> {
     super( chatRepo);
   }
 // 
-  async startChat(driver_id: string): Promise<Chat> {
+  async startChat(order_id: string): Promise<Chat> {
     const clientId = this.request.user.id;
-    const driver=await this.userRepo.findOne({ where: { id: driver_id,  } });
-    if (!driver) {
-      throw new NotFoundException('Driver not found');
+    const order=await this.orderRepo.findOne({where:{id:order_id}})
+    if(!order){
+      throw new NotFoundException('Order not found');
     }
+    if(order.driver_id==null){
+      throw new NotFoundException('Order has no driver yet');
+    }
+
     const existing = await this.chatRepo.findOne({
-      where: { client: { id: clientId }, driver: { id: driver_id } },
+      where: { client: { id: clientId }, driver: { id: order.driver_id } },
     });
 
     if (existing) return existing;
 
     const newChat = new Chat({
       client_id: clientId,
-      driver_id: driver_id,
+      driver_id: order.driver_id,
     });
+    await this.orderRepo.update({id:order_id},{chat_id:newChat.id})
     return await this.chatRepo.save(newChat);
+
   }
 
-  async sendMessage(driver_id: string, content: string): Promise<Message> {
- const start_chat=   await this.startChat(driver_id);
+  async sendMessage(order_id: string, content: string): Promise<Message> {
+ const start_chat=   await this.startChat(order_id);
 
 
     const senderId = this.request.user.id;
@@ -72,6 +78,7 @@ export class ChatService extends BaseService<Chat> {
         excludeExtraneousValues: true,
       }),
     );
+    await this.chatRepo.update({id:start_chat.id},{last_message:content})
     return message;
   }
 
@@ -103,7 +110,7 @@ async getMessages(
 async getUserChats(
   page = 1,
   limit = 20,
-): Promise<{ items: any[]; total: number }> {
+): Promise<{ items: Chat[]; total: number }> {
   const roles = this.request.user.roles;
   const userId = this.request.user.id;
 
@@ -111,37 +118,17 @@ async getUserChats(
     ? 'chat.client_id'
     : 'chat.driver_id';
 
-  const qb = this.chatRepo
-    .createQueryBuilder('chat')
-    .leftJoinAndSelect('chat.client', 'client')
-    .leftJoinAndSelect('chat.driver', 'driver')
-    // join only the last message
-    .leftJoinAndSelect(
-      (qb) =>
-        qb
-          .from('message', 'm')
-          .where('m.chat_id = chat.id')
-          .orderBy('m.created_at', 'DESC')
-          .limit(1),
-      'last_message',
-      'last_message.chat_id = chat.id',
-    )
-    .where(`${roleColumn} = :userId`, { userId })
-    .orderBy('last_message.created_at', 'DESC');
+  const [chats, total] = await this.chatRepo.findAndCount({
+    where: { [roleColumn]: userId },
+    relations: ['client', 'driver', 'last_message'], // load relations you need
+    order: { created_at: "DESC" }, // sort by last_message
+    skip: (page - 1) * limit,
+    take: limit,
+  });
 
-  // Pagination
-  const [chats, total] = await qb
-    .skip((page - 1) * limit)
-    .take(limit)
-    .getManyAndCount();
-
-  const items = chats.map((chat: any) => ({
-    ...chat,
-    last_message: chat.last_message ?? null,
-  }));
-
-  return { items, total };
+  return { items: chats, total };
 }
+
 
 
 }
