@@ -31,10 +31,10 @@ export class ChatService extends BaseService<Chat> {
     super( chatRepo);
   }
 // 
- async startChat(order_id: string): Promise<Chat> {
+async startChat(order_id: string): Promise<Chat> {
   const clientId = this.request.user.id;
-  const order = await this.orderRepo.findOne({ where: { id: order_id } });
 
+  const order = await this.orderRepo.findOne({ where: { id: order_id } });
   if (!order) {
     throw new NotFoundException('Order not found');
   }
@@ -44,20 +44,20 @@ export class ChatService extends BaseService<Chat> {
 
   // Check if chat already exists
   const existing = await this.chatRepo.findOne({
-    where: { client: { id: clientId }, driver: { id: order.driver_id } },
+    where: { client_id: clientId, driver_id: order.driver_id },
   });
   if (existing) return existing;
 
-  // Create new chat
+  // ✅ Create chat using raw IDs only
   const newChat = this.chatRepo.create({
-    client: { id: clientId },
-    driver: { id: order.driver_id },
+    client_id: clientId,
+    driver_id: order.driver_id,
   });
 
-  // Save chat first
+  // Save the chat first
   const savedChat = await this.chatRepo.save(newChat);
 
-  // Now update order with saved chat id
+  // Update order with chat_id
   await this.orderRepo.update({ id: order_id }, { chat_id: savedChat.id });
 
   return savedChat;
