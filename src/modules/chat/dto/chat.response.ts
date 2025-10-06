@@ -12,4 +12,8 @@ export class ChatResponse {
   @Expose()
   @Type(() => MessageRespone)
   last_message: MessageRespone;
+
+  @Expose()
+  @Transform(( value ) => value?.obj?.orders[0]?.id )
+  order_id:string
 }

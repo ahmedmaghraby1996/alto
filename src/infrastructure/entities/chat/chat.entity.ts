@@ -13,6 +13,7 @@ import {
 import { AuditableEntity } from 'src/infrastructure/base/auditable.entity';
 import { User } from '../user/user.entity';
 import { Message } from './messages.entity';
+import { Order } from '../order/order.entity';
 
 @Entity()
 export class Chat extends AuditableEntity {
@@ -39,7 +40,9 @@ export class Chat extends AuditableEntity {
   last_message: Message;
   @Column({nullable:true})
   last_message_id: string;
-   
+
+  @OneToMany(()=>Order,order=>order.chat)
+  orders:Order[]
 
   constructor(partial: Partial<Chat>) {
     super();

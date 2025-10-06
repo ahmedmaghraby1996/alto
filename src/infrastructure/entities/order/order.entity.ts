@@ -14,6 +14,7 @@ import { OrderStatus } from 'src/infrastructure/data/enums/order-status.enumt';
 import { User } from '../user/user.entity';
 import { OrderOffer } from './order-offer.entity';
 import { Driver } from '../driver/driver.entity';
+import { Chat } from '../chat/chat.entity';
 
 @Entity('order')
 export class Order extends AuditableEntity {
@@ -80,7 +81,9 @@ export class Order extends AuditableEntity {
 
   @Column({ default: false })
   is_fragile: boolean;
-
+  @ManyToOne(() => Chat)
+  @JoinColumn({ name: 'chat_id' })
+  chat: Chat;
   @Column({ nullable: true })
   chat_id: string;
 
@@ -92,12 +95,12 @@ export class Order extends AuditableEntity {
   @Column({ nullable: true })
   recipient_name: string;
 
-  offers_number?:number
+  offers_number?: number;
 
   @Column({ nullable: true })
   recipient_phone: string;
 
-    @Column({ type: 'decimal', precision: 3, scale: 2, nullable: true })
+  @Column({ type: 'decimal', precision: 3, scale: 2, nullable: true })
   driver_rate: number;
   @Column({ nullable: true })
   driver_comment: string;
@@ -107,7 +110,7 @@ export class Order extends AuditableEntity {
   client_comment: string;
 
   @BeforeInsert()
-   beforeInsert() {
+  beforeInsert() {
     const now = Date.now(); // current timestamp
     const random = Math.floor(1000 + Math.random() * 9000); // 4-digit random
     this.number = `ORD-${now}-${random}`;

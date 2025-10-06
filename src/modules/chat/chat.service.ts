@@ -73,6 +73,7 @@ async startChat(order_id: string): Promise<Chat> {
       chat_id: start_chat.id,
       sender_id: senderId,
       content,
+      
     });
 
     await this.msgRepo.save(message);
@@ -104,7 +105,7 @@ async getMessages(
   // Fetch messages with pagination
   const [items, total] = await this.msgRepo.findAndCount({
     where: { chat: { id: chatId } },
-    relations: ['sender'],
+    relations: ['sender',],
     order: { created_at: 'desc' },
     skip: (page - 1) * limit,
     take: limit,
@@ -128,8 +129,8 @@ async getUserChats(
 
   const [chats, total] = await this.chatRepo.findAndCount({
     where: { [roleColumn]: userId },
-    relations: {client: true, driver: true, last_message: true},// load relations you need
-    order: { created_at: "DESC" }, // sort by last_message
+    relations: {client: true, driver: true, last_message: true,orders: true},// load relations you need
+    order: { created_at: "DESC" ,orders: { created_at: "DESC" }}, // sort by last_message
     skip: (page - 1) * limit,
     take: limit,
   });
