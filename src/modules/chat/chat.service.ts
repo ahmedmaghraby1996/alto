@@ -44,7 +44,7 @@ async startChat(order_id: string): Promise<Chat> {
 
   // Check if chat already exists
   const existing = await this.chatRepo.findOne({
-    where: { client_id: clientId, driver_id: order.driver_id },
+    where: { client_id: clientId, driver_id: order.driver.user_id ,},order: { created_at: "DESC" },
   });
   if (existing) return existing;
 
