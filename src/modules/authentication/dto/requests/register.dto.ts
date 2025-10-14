@@ -88,6 +88,19 @@ export class RegisterDriverRequest extends RegisterRequest {
 @IsBoolean()
   vehicle_has_cooling?: boolean;
 
+  @ApiPropertyOptional({ type: Boolean })
+@IsOptional()
+@Transform(({ value }) => {
+  if (typeof value === 'string') {
+    return value.toLowerCase() === 'true' || value === '1';
+  }
+  return Boolean(value);
+})
+@IsBoolean()
+  vehicle_has_freezing?: boolean;
+
+  
+
   @ApiProperty()
   @IsString()
   driving_license_number: string;

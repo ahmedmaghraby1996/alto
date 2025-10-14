@@ -62,6 +62,9 @@ export class Driver extends AuditableEntity {
   @Column({ default: false })
   vehicle_has_cooling: boolean;
 
+    @Column({ default: false })
+  vehicle_has_freezing: boolean;
+
   constructor(partial?: Partial<Driver>) {
     super();
     Object.assign(this, partial);

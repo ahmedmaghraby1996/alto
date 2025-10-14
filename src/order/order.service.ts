@@ -99,18 +99,19 @@ export class OrderService extends BaseService<Order> {
     return types;
   }
 
-  async getDriverOffers() {
-    const driver = await this.driver_repo.findOne({
-      where: { user_id: this.request.user.id },
-    });
-    if (!driver) throw new Error('Driver not found');
+async getDriverOffers() {
+  const driver = await this.driver_repo.findOne({
+    where: { user_id: this.request.user.id },
+  });
 
-    const offers = await this.order_repo
-      .createQueryBuilder('order')
-      .leftJoinAndSelect('order.driver', 'driver')
-      .where('order.status = :status', { status: OrderStatus.PENDING })
-      .andWhere(
-        `
+  if (!driver) throw new Error('Driver not found');
+
+  const offers = await this.order_repo
+    .createQueryBuilder('order')
+    .leftJoinAndSelect('order.driver', 'driver')
+    .where('order.status = :status', { status: OrderStatus.PENDING })
+    .andWhere(
+      `
       (
         6371 * acos(
           cos(radians(:driverLat)) *
@@ -121,23 +122,29 @@ export class OrderService extends BaseService<Order> {
         )
       ) <= :maxDistance
       `,
-        {
-          driverLat: driver.latitude,
-          driverLng: driver.longitude,
-          maxDistance: 10, // in kilometers
-        },
+      {
+        driverLat: driver.latitude,
+        driverLng: driver.longitude,
+        maxDistance: 10, // kilometers
+      },
+    )
+    // Strict cooling/freezing logic
+    .andWhere(`
+      (
+        (order.needs_cooling = false AND order.needs_freezing = false)
+        OR (order.needs_cooling = true AND :driverCooling = true)
+        OR (order.needs_freezing = true AND :driverFreezing = true)
       )
-      .andWhere(
-        `
-      (order.needs_cooling = false OR order.needs_cooling = :driverCooling)
-      `,
-        { driverCooling: driver.vehicle_has_cooling },
-      )
-      .addOrderBy('order.created_at', 'DESC')
-      .getMany();
+    `, {
+      driverCooling: driver.vehicle_has_cooling,
+      driverFreezing: driver.vehicle_has_freezing,
+    })
+    .addOrderBy('order.created_at', 'DESC')
+    .getMany();
 
-    return offers;
-  }
+  return offers;
+}
+
 
   async getOrderDetails(id: string) {
     const order = await this.order_repo.findOne({
