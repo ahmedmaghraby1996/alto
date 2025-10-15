@@ -88,7 +88,7 @@ export class RegisterDriverRequest extends RegisterRequest {
 @IsBoolean()
   vehicle_has_cooling?: boolean;
 
-  @ApiPropertyOptional({ type: Boolean })
+    @ApiPropertyOptional({ type: Boolean })
 @IsOptional()
 @Transform(({ value }) => {
   if (typeof value === 'string') {

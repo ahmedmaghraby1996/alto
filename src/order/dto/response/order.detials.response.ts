@@ -32,6 +32,11 @@ export class OrderDetailsResponse extends OrderListResponse {
   @Expose()
   client_comment: string
 
+  @Expose()
+  recipient_name: string
+  @Expose()
+  recipient_phone: string
+  
 
 
   
