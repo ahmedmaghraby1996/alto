@@ -302,7 +302,7 @@ async getDriverOffers() {
       where: { id: req.order_id },
     });
     if (!order) throw new Error('Order not found');
-    if (order.status != OrderStatus.COMPLETED)
+    if (order.status != OrderStatus.DELIVERED)
       throw new Error('Order not completed');
     if (this.request.user.roles[0] == Role.CLIENT) {
       order.client_rate = req.rate;
