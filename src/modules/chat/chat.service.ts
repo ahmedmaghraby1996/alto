@@ -50,7 +50,7 @@ async startChat(order_id: string): Promise<Chat> {
 
   // ✅ Create chat using raw IDs only
   const newChat = this.chatRepo.create({
-    client_id: clientId,
+    client_id: order.user_id,
     driver_id: order.driver.user_id,
   });
 
