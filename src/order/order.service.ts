@@ -110,6 +110,11 @@ async getDriverOffers() {
     .createQueryBuilder('order')
     .leftJoinAndSelect('order.driver', 'driver')
     .where('order.status = :status', { status: OrderStatus.PENDING })
+    // ✅ Only include orders that match the driver’s vehicle type
+    .andWhere('order.truck_type_id = :truckTypeId', {
+      truckTypeId: driver.vehicle_type_id,
+    })
+    // ✅ Distance filter
     .andWhere(
       `
       (
@@ -128,22 +133,26 @@ async getDriverOffers() {
         maxDistance: 10, // kilometers
       },
     )
-    // Strict cooling/freezing logic
-    .andWhere(`
+    // ✅ Cooling / Freezing logic
+    .andWhere(
+      `
       (
         (order.needs_cooling = false AND order.needs_freezing = false)
         OR (order.needs_cooling = true AND :driverCooling = true)
         OR (order.needs_freezing = true AND :driverFreezing = true)
       )
-    `, {
-      driverCooling: driver.vehicle_has_cooling,
-      driverFreezing: driver.vehicle_has_freezing,
-    })
+      `,
+      {
+        driverCooling: driver.vehicle_has_cooling,
+        driverFreezing: driver.vehicle_has_freezing,
+      },
+    )
     .addOrderBy('order.created_at', 'DESC')
     .getMany();
 
   return offers;
 }
+
 
 
   async getOrderDetails(id: string) {
