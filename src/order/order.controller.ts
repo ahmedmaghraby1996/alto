@@ -125,13 +125,29 @@ export class OrderController {
   @Roles(Role.CLIENT)
   @Post('accept-offer/:id')
   async acceptOffer(@Param('id') id: string) {
-    return new ActionResponse(await this.orderService.acceptOffer(id));
+    const acceptedOffer = await this.orderService.acceptOffer(id);
+    try {
+      const offer = await this.getOfferDetails(acceptedOffer.id);
+      this.orderGateway.server.emit(
+        'accepted-offer-' + acceptedOffer.order_id,
+        offer,
+      );
+    }catch (err) {}
+    return new ActionResponse(acceptedOffer);
   }
 
   @Roles(Role.CLIENT)
   @Post('reject-offer/:id')
   async rejectOffer(@Param('id') id: string) {
-    return new ActionResponse(await this.orderService.rejectOffer(id));
+    const rejectOffer = await this.orderService.rejectOffer(id);
+    try{
+      const offer = await this.getOfferDetails(rejectOffer.id);
+      this.orderGateway.server.emit(
+        'rejected-offer-' + rejectOffer.order_id,
+        offer,
+      );
+    }catch (err) {}
+    return new ActionResponse(rejectOffer);
   }
   // cancel order
   @Roles(Role.CLIENT)
