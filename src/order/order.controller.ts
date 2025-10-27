@@ -34,6 +34,7 @@ import {
 import { OrderOfferResponse } from './dto/response/order-offer.response';
 import { OrderReview } from 'src/infrastructure/entities/order/order-review.entity';
 import { OrderReviewDto } from './dto/request/order-reveiw.dto';
+import { OrderGateway } from 'src/integration/gateways/order.gateway';
 @ApiTags('Order')
 @ApiHeader({
   name: 'Accept-Language',
@@ -48,6 +49,7 @@ export class OrderController {
     private readonly orderService: OrderService,
     @Inject(REQUEST) private readonly request: Request,
     @Inject(I18nResponse) private readonly _i18nResponse: I18nResponse,
+    private readonly orderGateway: OrderGateway,
   ) {}
 
   @Get('get-package-types')
@@ -60,7 +62,27 @@ export class OrderController {
 
   @Post('create')
   async create(@Body() req: CreateOrderDto) {
-    return new ActionResponse(await this.orderService.createOrder(req));
+    const createdOrder = await this.orderService.createOrder(req);
+
+    // ✅ Run async but don't block response
+    (async () => {
+      try {
+        const detailedOrder = await this.getOrder(createdOrder.id);
+        const driverUserIds = await this.orderService.findNearbyDrivers(
+          createdOrder.pickup_latitude,
+          createdOrder.pickup_longitude,
+        );
+
+        driverUserIds.forEach((userId) => {
+          this.orderGateway.server.emit(`new-order-${userId}`, detailedOrder);
+        });
+      } catch (err) {
+        console.error('Error sending notifications:', err);
+      }
+    })();
+
+    // ✅ Respond instantly 🚀
+    return new ActionResponse(createdOrder);
   }
 
   @Roles(Role.CLIENT, Role.DRIVER)
@@ -115,25 +137,57 @@ export class OrderController {
   @Roles(Role.CLIENT)
   @Post('cancel/:id')
   async cancelOrder(@Param('id') id: string) {
-    return new ActionResponse(await this.orderService.cancelOrder(id));
+    const cancelOrder = await this.orderService.cancelOrder(id);
+    try {
+      const detailedOrder = await this.getOrder(cancelOrder.id);
+      this.orderGateway.server.emit(
+        'order-update-status-' + cancelOrder.driver_id,
+        detailedOrder,
+      );
+    } catch (err) {}
+    return new ActionResponse(cancelOrder);
   }
 
   @Roles(Role.DRIVER)
   @Post('cancel-offer/:id')
   async cancel(@Param('id') id: string) {
-    return new ActionResponse(await this.orderService.cancelOffer(id));
+    const cancelOffer = await this.orderService.cancelOffer(id);
+    try {
+      const offer = await this.getOfferDetails(cancelOffer.id);
+      this.orderGateway.server.emit(
+        'cancel-offer-' + cancelOffer.order_id,
+        offer,
+      );
+    }catch (err) {}
+    return new ActionResponse(cancelOffer);
   }
 
   @Roles(Role.DRIVER)
   @Post('pickup/:id')
   async pickupOrder(@Param('id') id: string) {
-    return new ActionResponse(await this.orderService.pickupOrder(id));
+    const pickedOrder = await this.orderService.pickupOrder(id);
+    try {
+      const detailedOrder = await this.getOrder(pickedOrder.id);
+      this.orderGateway.server.emit(
+        'order-update-status-' + pickedOrder.user_id,
+        detailedOrder,
+      );
+    } catch (err) {}
+    return new ActionResponse(pickedOrder);
   }
 
   @Roles(Role.DRIVER)
   @Post('deliver/:id')
   async deliverOrder(@Param('id') id: string) {
-    return new ActionResponse(await this.orderService.deliverOrder(id));
+    const deliveredOrder = await this.orderService.deliverOrder(id);
+    try {
+      const detailedOrder = await this.getOrder(deliveredOrder.id);
+      this.orderGateway.server.emit(
+        'order-update-status-' + deliveredOrder.user_id,
+        detailedOrder,
+      );
+    } catch (err) {}
+    return new ActionResponse(deliveredOrder);
   }
 
   @Roles(Role.CLIENT)
@@ -166,13 +220,32 @@ export class OrderController {
   @Roles(Role.DRIVER)
   @Post('create-offer')
   async createOffer(@Body() req: CreateOfferDto) {
-    return new ActionResponse(await this.orderService.createOffer(req));
+    const offer = await this.orderService.createOffer(req);
+    try {
+      const offerDetails = await this.getOfferDetails(offer.id);
+      this.orderGateway.server.emit(
+        'new-offer-' + offer.order_id,
+        offerDetails,
+      );
+    } catch (err) {}
+    return new ActionResponse(offer);
   }
 
   @Roles(Role.CLIENT, Role.DRIVER)
   @Post('rate')
   async rateOrder(@Body() req: OrderReviewDto) {
     return new ActionResponse(await this.orderService.rateOrder(req));
+  }
+
+  async getOfferDetails(@Param('id') id: string) {
+    const offer = await this.orderService.orderOffer_repo.findOne({
+      where: { id },
+      relations: { driver: { user: true } },
+    });
+    const result = plainToInstance(OrderOfferResponse, offer, {
+      excludeExtraneousValues: true,
+    });
+    return new ActionResponse(result);
   }
 
   // @Get()

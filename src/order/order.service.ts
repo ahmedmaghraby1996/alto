@@ -23,12 +23,13 @@ import { DataSource } from 'typeorm';
 import { where } from 'sequelize';
 import { OrderReviewDto } from './dto/request/order-reveiw.dto';
 import { Chat } from 'src/infrastructure/entities/chat/chat.entity';
+
 @Injectable()
 export class OrderService extends BaseService<Order> {
   constructor(
     @InjectRepository(User) private readonly user_repo: Repository<User>,
     @InjectRepository(OrderOffer)
-    private readonly orderOffer_repo: Repository<OrderOffer>,
+    public readonly orderOffer_repo: Repository<OrderOffer>,
     @InjectRepository(Order) private readonly order_repo: Repository<Order>,
     @Inject(REQUEST) private readonly request: Request,
     @InjectRepository(PackageType)
@@ -37,6 +38,8 @@ export class OrderService extends BaseService<Order> {
     @Inject(DataSource) private readonly dataSource: DataSource,
     @InjectRepository(Driver) private readonly driverRepo: Repository<Driver>,
     @InjectRepository(Chat) private readonly chatRepo: Repository<Chat>,
+
+    
   ) {
     super(order_repo);
   }
@@ -152,6 +155,49 @@ async getDriverOffers() {
 
   return offers;
 }
+
+async findNearbyDrivers(driverLat: number, driverLng: number, maxDistanceKm = 10) {
+  const drivers = await this.driver_repo
+    .createQueryBuilder('driver')
+    .select(['driver.user_id']) // ✅ only select user_id
+    .where('driver.is_available = true')
+    .andWhere(
+      `
+      (
+        6371 * acos(
+          cos(radians(:lat)) *
+          cos(radians(driver.latitude)) *
+          cos(radians(driver.longitude) - radians(:lng)) +
+          sin(radians(:lat)) *
+          sin(radians(driver.latitude))
+        )
+      ) <= :radius
+      `,
+      {
+        lat: driverLat,
+        lng: driverLng,
+        radius: maxDistanceKm,
+      },
+    )
+    .orderBy(
+      `
+      (
+        6371 * acos(
+          cos(radians(:lat)) *
+          cos(radians(driver.latitude)) *
+          cos(radians(driver.longitude) - radians(:lng)) +
+          sin(radians(:lat)) *
+          sin(radians(driver.latitude))
+        )
+      )
+      `,
+      'ASC',
+    )
+    .getRawMany(); // ✅ raw result gives clean output
+
+  return drivers.map((d) => d.driver_user_id);
+}
+
 
 
 

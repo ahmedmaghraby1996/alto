@@ -38,11 +38,13 @@ export abstract class Gateways {
    
   }
 
-  static nurse_order = class {
+  static order = class {
  
-    static Namespace = 'nurse-order';
+    static Namespace = 'order';
+
+    static OrderOffer = 'offer';
    
-    static reservationOffer = 'reservation-offer';
+
    
   }
 }
