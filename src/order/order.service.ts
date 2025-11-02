@@ -160,8 +160,8 @@ async findNearbyDrivers(driverLat: number, driverLng: number, maxDistanceKm = 10
   const drivers = await this.driver_repo
     .createQueryBuilder('driver')
     .select(['driver.user_id']) // ✅ only select user_id
-    .where('driver.is_available = true')
-    .andWhere(
+    // .where('driver.is_available = true')
+    .where(
       `
       (
         6371 * acos(
