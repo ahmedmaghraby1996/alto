@@ -1,5 +1,7 @@
 import { Expose, plainToInstance, Transform, Type } from 'class-transformer';
+import { Order } from 'sequelize';
 import { UserResponse } from 'src/modules/user/dto/response/user-response';
+import { OrderListResponse } from './order-list.response';
 
 export class OrderOfferResponse {
   @Expose()
@@ -30,4 +32,8 @@ export class OrderOfferResponse {
   driver_id: string;
   @Expose()
   is_new: boolean;
+
+  @Expose()
+  @Type(() => OrderListResponse)
+  order:OrderListResponse
 }
