@@ -22,4 +22,10 @@ export class OrderOfferResponse {
     );
   })
   Driver: any;
+
+  @Expose()
+  order_id: string;
+
+  @Expose()
+  driver_id: string;
 }
