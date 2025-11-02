@@ -290,7 +290,7 @@ export class OrderController {
     try {
       const offerDetails = await this.getOfferDetails(offer.id);
       this.orderGateway.server.emit(
-        'new-offer-' + offer.order_id,
+        'new-offer-' + offer.order.user_id,
         offerDetails,
       );
       await this.NotificationService.create(
@@ -315,7 +315,7 @@ export class OrderController {
   async getOfferDetails(@Param('id') id: string) {
     const offer = await this.orderService.orderOffer_repo.findOne({
       where: { id },
-      relations: { driver: { user: true } },
+      relations: { driver: { user: true }, order: true },
     });
     const result = plainToInstance(OrderOfferResponse, offer, {
       excludeExtraneousValues: true,
