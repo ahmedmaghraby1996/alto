@@ -28,4 +28,6 @@ export class OrderOfferResponse {
 
   @Expose()
   driver_id: string;
+  @Expose()
+  is_new: boolean;
 }

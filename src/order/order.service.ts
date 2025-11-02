@@ -82,6 +82,7 @@ export class OrderService extends BaseService<Order> {
       return this.orderOffer_repo.save({
         ...existingOffer,
         price: dto.price,
+        is_new: false,
       });
     }
     return this.orderOffer_repo.save({

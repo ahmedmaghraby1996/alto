@@ -21,6 +21,8 @@ price: number;
   @ManyToOne(() => Driver)
   @JoinColumn({ name: 'driver_id' })
   driver: Driver;
+  @Column({ default: true })
+  is_new: boolean;
   @Column({ nullable: true })
   driver_id: string;
 }
