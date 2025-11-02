@@ -35,6 +35,9 @@ import { OrderOfferResponse } from './dto/response/order-offer.response';
 import { OrderReview } from 'src/infrastructure/entities/order/order-review.entity';
 import { OrderReviewDto } from './dto/request/order-reveiw.dto';
 import { OrderGateway } from 'src/integration/gateways/order.gateway';
+import { NotificationService } from 'src/modules/notification/services/notification.service';
+import { NotificationEntity } from 'src/infrastructure/entities/notification/notification.entity';
+import { SendToUsersNotificationRequest } from 'src/modules/notification/dto/requests/send-to-users-notification.request';
 @ApiTags('Order')
 @ApiHeader({
   name: 'Accept-Language',
@@ -50,6 +53,7 @@ export class OrderController {
     @Inject(REQUEST) private readonly request: Request,
     @Inject(I18nResponse) private readonly _i18nResponse: I18nResponse,
     private readonly orderGateway: OrderGateway,
+    private readonly NotificationService: NotificationService,
   ) {}
 
   @Get('get-package-types')
@@ -76,6 +80,14 @@ export class OrderController {
         driverUserIds.forEach((userId) => {
           this.orderGateway.server.emit(`new-order-${userId}`, detailedOrder);
         });
+
+        await this.NotificationService.sendToUsers(new SendToUsersNotificationRequest({
+          users_id: driverUserIds,
+          message_ar: 'لديك طلب جديد',
+          message_en: 'You have a new order',
+          title_ar: 'طلب جديد',
+          title_en: 'New Order',
+        }))
       } catch (err) {
         console.error('Error sending notifications:', err);
       }
@@ -132,7 +144,17 @@ export class OrderController {
         'accepted-offer-' + acceptedOffer.order_id,
         offer,
       );
-    }catch (err) {}
+
+      await this.NotificationService.create(
+        new NotificationEntity({
+          text_ar: 'تم قبول العرض',
+          text_en: 'Offer accepted',
+          title_ar: 'تم قبول العرض',
+          title_en: 'Offer accepted',
+          user_id: acceptedOffer.driver.user_id,
+        }),
+      );
+    } catch (err) {}
     return new ActionResponse(acceptedOffer);
   }
 
@@ -140,13 +162,22 @@ export class OrderController {
   @Post('reject-offer/:id')
   async rejectOffer(@Param('id') id: string) {
     const rejectOffer = await this.orderService.rejectOffer(id);
-    try{
+    try {
       const offer = await this.getOfferDetails(rejectOffer.id);
       this.orderGateway.server.emit(
         'rejected-offer-' + rejectOffer.order_id,
         offer,
       );
-    }catch (err) {}
+      await this.NotificationService.create(
+        new NotificationEntity({
+          text_ar: 'تم رفض العرض',
+          text_en: 'Offer rejected',
+          title_ar: 'تم رفض العرض',
+          title_en: 'Offer rejected',
+          user_id: rejectOffer.driver.user_id,
+        }),
+      );
+    } catch (err) {}
     return new ActionResponse(rejectOffer);
   }
   // cancel order
@@ -174,7 +205,7 @@ export class OrderController {
         'cancel-offer-' + cancelOffer.order_id,
         offer,
       );
-    }catch (err) {}
+    } catch (err) {}
     return new ActionResponse(cancelOffer);
   }
 
@@ -187,6 +218,16 @@ export class OrderController {
       this.orderGateway.server.emit(
         'order-update-status-' + pickedOrder.user_id,
         detailedOrder,
+      );
+
+      await this.NotificationService.create(
+        new NotificationEntity({
+          title_ar: 'تم استلام الطلب',
+          title_en: 'Order picked up',
+          text_ar: 'تم استلام الطلب',
+          text_en: 'Order picked up',
+          user_id: pickedOrder.user_id,
+        }),
       );
     } catch (err) {}
     return new ActionResponse(pickedOrder);
@@ -201,6 +242,15 @@ export class OrderController {
       this.orderGateway.server.emit(
         'order-update-status-' + deliveredOrder.user_id,
         detailedOrder,
+      );
+      await this.NotificationService.create(
+        new NotificationEntity({
+          title_ar: 'تم تسليم الطلب',
+          title_en: 'Order delivered',
+          text_ar: 'تم تسليم الطلب',
+          text_en: 'Order delivered',
+          user_id: deliveredOrder.user_id,
+        }),
       );
     } catch (err) {}
     return new ActionResponse(deliveredOrder);
@@ -242,6 +292,15 @@ export class OrderController {
       this.orderGateway.server.emit(
         'new-offer-' + offer.order_id,
         offerDetails,
+      );
+      await this.NotificationService.create(
+        new NotificationEntity({
+          title_ar: 'تم انشاء عرض جديد',
+          title_en: 'New offer created',
+          text_ar: 'تم انشاء عرض جديد',
+          text_en: 'New offer created',
+          user_id: offer.driver.user_id,
+        }),
       );
     } catch (err) {}
     return new ActionResponse(offer);
