@@ -6,6 +6,7 @@ import { NotificationService } from 'src/modules/notification/services/notificat
 
 @Module({
   controllers: [OrderController],
-  providers: [OrderService,OrderGateway,NotificationService]
+  providers: [OrderService,OrderGateway,NotificationService],
+  exports: [OrderModule]
 })
 export class OrderModule {}

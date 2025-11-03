@@ -9,6 +9,7 @@ import { UserService } from '../user/user.service';
 import { NotifyModule } from 'src/integration/notify/notify.module';
 import { NotificationEntity } from 'src/infrastructure/entities/notification/notification.entity';
 import { FirebaseAdminService } from './firebase-admin-service';
+import { OrderGateway } from 'src/integration/gateways/order.gateway';
 
 
 @Module({
@@ -25,6 +26,7 @@ import { FirebaseAdminService } from './firebase-admin-service';
   providers: [
     NotificationService,
     FcmIntegrationService,
+    OrderGateway,
     I18nResponse,
     UserService,
 

@@ -27,8 +27,9 @@ import {
 } from './dto/request/update-store-info.request';
 
 import { AddBranchRequest } from './dto/request/add-branch.request';
-import {  Driver } from 'src/infrastructure/entities/driver/driver.entity';
+import { Driver } from 'src/infrastructure/entities/driver/driver.entity';
 import { UpdateDriverLocationDto } from './dto/request/update-drivier-location.dto';
+import { OrderGateway } from 'src/integration/gateways/order.gateway';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService extends BaseService<User> {
@@ -40,7 +41,7 @@ export class UserService extends BaseService<User> {
     @Inject(StorageManager) private readonly storageManager: StorageManager,
     @Inject(ConfigService) private readonly _config: ConfigService,
     @InjectRepository(Driver) private readonly driverRepo: Repository<Driver>,
-
+    private readonly orderGateway: OrderGateway,
   ) {
     super(userRepo);
   }
@@ -84,20 +85,20 @@ export class UserService extends BaseService<User> {
     });
   }
 
-
-  async updateDriverLocation(request:UpdateDriverLocationDto) {
+  async updateDriverLocation(request: UpdateDriverLocationDto) {
     const driver = await this.driverRepo.findOne({
-      where: { user_id: this.request.user.id, },
+      where: { user_id: this.request.user.id },
     });
     if (!driver) throw new NotFoundException('Driver not found');
 
     await this.driverRepo.update(driver.id, {
       latitude: request.latitude,
-      longitude: request.longitude
-    })
+      longitude: request.longitude,
+    });
+    this.orderGateway.server.emit(`driver-location-${driver.id}`, {
+      latitude: request.latitude,
+      longitude: request.longitude,
+    });
     return { message: 'Driver location updated successfully' };
   }
-
-
 }
-
