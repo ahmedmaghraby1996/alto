@@ -141,7 +141,7 @@ export class OrderController {
     try {
       const offer = await this.getOfferDetails(acceptedOffer.id);
       this.orderGateway.server.emit(
-        'accepted-offer-' + acceptedOffer.order_id,
+        'accepted-offer-' + acceptedOffer.order.user_id,
         offer,
       );
 
