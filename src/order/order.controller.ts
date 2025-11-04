@@ -302,7 +302,7 @@ export class OrderController {
     try {
       const offerDetails = await this.getOfferDetails(offer.id);
       this.orderGateway.server.emit(
-        `new-offer-${offerDetails.data.Driver.user_id}`,
+        'new-offer-' + offerDetails.data.order.user_id,
         offerDetails,
       );
       await this.NotificationService.create(
