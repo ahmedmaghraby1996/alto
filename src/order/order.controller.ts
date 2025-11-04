@@ -191,7 +191,7 @@ export class OrderController {
     try {
       const detailedOrder = await this.getOrder(cancelOrder.id);
       this.orderGateway.server.emit(
-        'order-update-status-' + cancelOrder.driver.user_id,
+        'order-update-status-' + detailedOrder.data.driver.id,
         detailedOrder,
       );
       await this.NotificationService.create(
@@ -200,7 +200,7 @@ export class OrderController {
           title_en: 'Order canceled',
           text_ar: 'تم إلغاء الطلب',
           text_en: 'Order canceled',
-          user_id: cancelOrder.driver.user_id,
+          user_id: detailedOrder.data.driver.id,
         }),
       );
     } catch (err) {}
@@ -214,7 +214,7 @@ export class OrderController {
     try {
       const offer = await this.getOfferDetails(cancelOffer.id);
       this.orderGateway.server.emit(
-        'cancel-offer-' + cancelOffer.order_id,
+        'cancel-offer-' + offer.data.order.user_id,
         offer,
       );
     } catch (err) {}
