@@ -165,7 +165,7 @@ export class OrderController {
     try {
       const offer = await this.getOfferDetails(rejectOffer.id);
       this.orderGateway.server.emit(
-        'rejected-offer-' + rejectOffer.order_id,
+        'rejected-offer-' + rejectOffer.order.user_id,
         offer,
       );
       await this.NotificationService.create(
