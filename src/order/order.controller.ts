@@ -315,7 +315,7 @@ export class OrderController {
           user_id: offerDetails.data.order.user_id,
         }),
       );
-    } catch (err) {}
+    } catch (err) {console.log(err)}
     return new ActionResponse(offer);
   }
 
