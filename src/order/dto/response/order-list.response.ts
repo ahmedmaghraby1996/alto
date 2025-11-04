@@ -36,7 +36,7 @@ export class OrderListResponse {
   @Expose()
   description: string;
 
-
+  @Expose()
   user_id: string;
   @Expose()
   @Transform(({ obj }) => {
