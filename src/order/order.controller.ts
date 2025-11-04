@@ -144,7 +144,7 @@ export class OrderController {
     try {
       const offer = await this.getOfferDetails(acceptedOffer.id);
       this.orderGateway.server.emit(
-        `accepted-offer-${offer.data.Driver.user_id}`,
+        `accepted-offer-${offer.data.Driver.id}`,
         offer,
       );
 
