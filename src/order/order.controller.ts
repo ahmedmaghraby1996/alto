@@ -168,7 +168,7 @@ export class OrderController {
     try {
       const offer = await this.getOfferDetails(rejectOffer.id);
       this.orderGateway.server.emit(
-        `rejected-offer-${offer.data.Driver.user_id}`,
+        `rejected-offer-${rejectOffer.order_id}`,
         offer,
       );
       await this.NotificationService.create(
