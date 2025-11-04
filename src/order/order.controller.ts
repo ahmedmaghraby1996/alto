@@ -311,7 +311,7 @@ export class OrderController {
           title_en: 'New offer created',
           text_ar: 'تم انشاء عرض جديد',
           text_en: 'New offer created',
-          user_id: offer.driver.user_id,
+          user_id: offerDetails.data.order.user_id,
         }),
       );
     } catch (err) {}
