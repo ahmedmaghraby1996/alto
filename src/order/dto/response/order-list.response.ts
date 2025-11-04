@@ -36,6 +36,8 @@ export class OrderListResponse {
   @Expose()
   description: string;
 
+
+  user_id: string;
   @Expose()
   @Transform(({ obj }) => {
     if (!obj?.driver?.user) return null;

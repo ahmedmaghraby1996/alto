@@ -38,6 +38,7 @@ import { OrderGateway } from 'src/integration/gateways/order.gateway';
 import { NotificationService } from 'src/modules/notification/services/notification.service';
 import { NotificationEntity } from 'src/infrastructure/entities/notification/notification.entity';
 import { SendToUsersNotificationRequest } from 'src/modules/notification/dto/requests/send-to-users-notification.request';
+import { off } from 'process';
 @ApiTags('Order')
 @ApiHeader({
   name: 'Accept-Language',
@@ -81,13 +82,15 @@ export class OrderController {
           this.orderGateway.server.emit(`new-order-${userId}`, detailedOrder);
         });
 
-        await this.NotificationService.sendToUsers(new SendToUsersNotificationRequest({
-          users_id: driverUserIds,
-          message_ar: 'لديك طلب جديد',
-          message_en: 'You have a new order',
-          title_ar: 'طلب جديد',
-          title_en: 'New Order',
-        }))
+        await this.NotificationService.sendToUsers(
+          new SendToUsersNotificationRequest({
+            users_id: driverUserIds,
+            message_ar: 'لديك طلب جديد',
+            message_en: 'You have a new order',
+            title_ar: 'طلب جديد',
+            title_en: 'New Order',
+          }),
+        );
       } catch (err) {
         console.error('Error sending notifications:', err);
       }
@@ -141,7 +144,7 @@ export class OrderController {
     try {
       const offer = await this.getOfferDetails(acceptedOffer.id);
       this.orderGateway.server.emit(
-        'accepted-offer-' + acceptedOffer.order.user_id,
+        `accepted-offer-${offer.data.Driver.user_id}`,
         offer,
       );
 
@@ -165,7 +168,7 @@ export class OrderController {
     try {
       const offer = await this.getOfferDetails(rejectOffer.id);
       this.orderGateway.server.emit(
-        'rejected-offer-' + rejectOffer.order.user_id,
+        `rejected-offer-${offer.data.Driver.user_id}`,
         offer,
       );
       await this.NotificationService.create(
@@ -188,7 +191,7 @@ export class OrderController {
     try {
       const detailedOrder = await this.getOrder(cancelOrder.id);
       this.orderGateway.server.emit(
-        'order-update-status-' + cancelOrder.driver_id,
+        'order-update-status-' + cancelOrder.driver.user_id,
         detailedOrder,
       );
     } catch (err) {}
