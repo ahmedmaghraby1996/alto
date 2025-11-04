@@ -190,20 +190,12 @@ export class OrderController {
     const cancelOrder = await this.orderService.cancelOrder(id);
     try {
       const detailedOrder = await this.getOrder(cancelOrder.id);
-      console.log(detailedOrder.data);
+
       this.orderGateway.server.emit(
-        'order-update-status-' + detailedOrder.data.driver.id,
+        'order-cancel' ,
         detailedOrder,
       );
-      await this.NotificationService.create(
-        new NotificationEntity({
-          title_ar: 'تم إلغاء الطلب',
-          title_en: 'Order canceled',
-          text_ar: 'تم إلغاء الطلب',
-          text_en: 'Order canceled',
-          user_id: detailedOrder.data.driver.id,
-        }),
-      );
+
     } catch (err) { console.log(err)}
     return new ActionResponse(cancelOrder);
   }
