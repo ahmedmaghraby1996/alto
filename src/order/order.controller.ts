@@ -301,6 +301,7 @@ export class OrderController {
     const offer = await this.orderService.createOffer(req);
     try {
       const offerDetails = await this.getOfferDetails(offer.id);
+      console.log(offerDetails.data.order.user_id);
       this.orderGateway.server.emit(
         'new-offer-' + offerDetails.data.order.user_id,
         offerDetails,
