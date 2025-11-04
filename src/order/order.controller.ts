@@ -154,7 +154,7 @@ export class OrderController {
           text_en: 'Offer accepted',
           title_ar: 'تم قبول العرض',
           title_en: 'Offer accepted',
-          user_id: acceptedOffer.driver.user_id,
+          user_id: offer.data.Driver.user_id,
         }),
       );
     } catch (err) {}
@@ -177,7 +177,7 @@ export class OrderController {
           text_en: 'Offer rejected',
           title_ar: 'تم رفض العرض',
           title_en: 'Offer rejected',
-          user_id: rejectOffer.driver.user_id,
+          user_id: offer.data.Driver.user_id,
         }),
       );
     } catch (err) {}
@@ -193,6 +193,15 @@ export class OrderController {
       this.orderGateway.server.emit(
         'order-update-status-' + cancelOrder.driver.user_id,
         detailedOrder,
+      );
+      await this.NotificationService.create(
+        new NotificationEntity({
+          title_ar: 'تم إلغاء الطلب',
+          title_en: 'Order canceled',
+          text_ar: 'تم إلغاء الطلب',
+          text_en: 'Order canceled',
+          user_id: cancelOrder.driver.user_id,
+        }),
       );
     } catch (err) {}
     return new ActionResponse(cancelOrder);

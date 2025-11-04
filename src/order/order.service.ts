@@ -251,7 +251,7 @@ async findNearbyDrivers(driverLat: number, driverLng: number, maxDistanceKm = 10
 
   async getClientOffers(id: string) {
     const offers = await this.orderOffer_repo.find({
-      where: { order_id: id },
+      where: { order_id: id, status: OfferStatus.PENDING },
       relations: { driver: { user: true } },
       order: { created_at: 'DESC' },
     });
