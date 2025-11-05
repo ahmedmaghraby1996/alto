@@ -299,7 +299,7 @@ async cancelOffer(id: string) {
     // Make a copy of the offer before removing
     const deletedOffer = { ...offer };
 
-    await manager.remove(offer);
+    await manager.softRemove(offer);
 
     // Return the deleted offer data
     return deletedOffer;
