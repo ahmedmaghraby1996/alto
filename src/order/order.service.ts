@@ -297,8 +297,8 @@ async findNearbyDrivers(driverLat: number, driverLng: number, maxDistanceKm = 10
         where: { order_id: id },
       });
       if (!offer) throw new Error('Offer not found');
-
-      return await manager.remove(offer);
+await manager.remove(offer)
+      return offer;
     });
   }
 
