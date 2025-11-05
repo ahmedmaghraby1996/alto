@@ -323,6 +323,7 @@ export class OrderController {
     const offer = await this.orderService.orderOffer_repo.findOne({
       where: { id },
       relations: { driver: { user: true }, order: true },
+      withDeleted: true,
     });
     const result = plainToInstance(OrderOfferResponse, offer, {
       excludeExtraneousValues: true,
