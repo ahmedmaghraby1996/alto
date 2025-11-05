@@ -38,8 +38,6 @@ export class OrderService extends BaseService<Order> {
     @Inject(DataSource) private readonly dataSource: DataSource,
     @InjectRepository(Driver) private readonly driverRepo: Repository<Driver>,
     @InjectRepository(Chat) private readonly chatRepo: Repository<Chat>,
-
-    
   ) {
     super(order_repo);
   }
@@ -103,24 +101,24 @@ export class OrderService extends BaseService<Order> {
     return types;
   }
 
-async getDriverOffers() {
-  const driver = await this.driver_repo.findOne({
-    where: { user_id: this.request.user.id },
-  });
+  async getDriverOffers() {
+    const driver = await this.driver_repo.findOne({
+      where: { user_id: this.request.user.id },
+    });
 
-  if (!driver) throw new Error('Driver not found');
+    if (!driver) throw new Error('Driver not found');
 
-  const offers = await this.order_repo
-    .createQueryBuilder('order')
-    .leftJoinAndSelect('order.driver', 'driver')
-    .where('order.status = :status', { status: OrderStatus.PENDING })
-    // ✅ Only include orders that match the driver’s vehicle type
-    .andWhere('order.truck_type_id = :truckTypeId', {
-      truckTypeId: driver.vehicle_type_id,
-    })
-    // ✅ Distance filter
-    .andWhere(
-      `
+    const offers = await this.order_repo
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.driver', 'driver')
+      .where('order.status = :status', { status: OrderStatus.PENDING })
+      // ✅ Only include orders that match the driver’s vehicle type
+      .andWhere('order.truck_type_id = :truckTypeId', {
+        truckTypeId: driver.vehicle_type_id,
+      })
+      // ✅ Distance filter
+      .andWhere(
+        `
       (
         6371 * acos(
           cos(radians(:driverLat)) *
@@ -131,39 +129,43 @@ async getDriverOffers() {
         )
       ) <= :maxDistance
       `,
-      {
-        driverLat: driver.latitude,
-        driverLng: driver.longitude,
-        maxDistance: 10, // kilometers
-      },
-    )
-    // ✅ Cooling / Freezing logic
-    .andWhere(
-      `
+        {
+          driverLat: driver.latitude,
+          driverLng: driver.longitude,
+          maxDistance: 10, // kilometers
+        },
+      )
+      // ✅ Cooling / Freezing logic
+      .andWhere(
+        `
       (
         (order.needs_cooling = false AND order.needs_freezing = false)
         OR (order.needs_cooling = true AND :driverCooling = true)
         OR (order.needs_freezing = true AND :driverFreezing = true)
       )
       `,
-      {
-        driverCooling: driver.vehicle_has_cooling,
-        driverFreezing: driver.vehicle_has_freezing,
-      },
-    )
-    .addOrderBy('order.created_at', 'DESC')
-    .getMany();
+        {
+          driverCooling: driver.vehicle_has_cooling,
+          driverFreezing: driver.vehicle_has_freezing,
+        },
+      )
+      .addOrderBy('order.created_at', 'DESC')
+      .getMany();
 
-  return offers;
-}
+    return offers;
+  }
 
-async findNearbyDrivers(driverLat: number, driverLng: number, maxDistanceKm = 10) {
-  const drivers = await this.driver_repo
-    .createQueryBuilder('driver')
-    .select(['driver.user_id']) // ✅ only select user_id
-    // .where('driver.is_available = true')
-    .where(
-      `
+  async findNearbyDrivers(
+    driverLat: number,
+    driverLng: number,
+    maxDistanceKm = 10,
+  ) {
+    const drivers = await this.driver_repo
+      .createQueryBuilder('driver')
+      .select(['driver.user_id']) // ✅ only select user_id
+      // .where('driver.is_available = true')
+      .where(
+        `
       (
         6371 * acos(
           cos(radians(:lat)) *
@@ -174,14 +176,14 @@ async findNearbyDrivers(driverLat: number, driverLng: number, maxDistanceKm = 10
         )
       ) <= :radius
       `,
-      {
-        lat: driverLat,
-        lng: driverLng,
-        radius: maxDistanceKm,
-      },
-    )
-    .orderBy(
-      `
+        {
+          lat: driverLat,
+          lng: driverLng,
+          radius: maxDistanceKm,
+        },
+      )
+      .orderBy(
+        `
       (
         6371 * acos(
           cos(radians(:lat)) *
@@ -192,15 +194,12 @@ async findNearbyDrivers(driverLat: number, driverLng: number, maxDistanceKm = 10
         )
       )
       `,
-      'ASC',
-    )
-    .getRawMany(); // ✅ raw result gives clean output
+        'ASC',
+      )
+      .getRawMany(); // ✅ raw result gives clean output
 
-  return drivers.map((d) => d.driver_user_id);
-}
-
-
-
+    return drivers.map((d) => d.driver_user_id);
+  }
 
   async getOrderDetails(id: string) {
     const order = await this.order_repo.findOne({
@@ -235,14 +234,13 @@ async findNearbyDrivers(driverLat: number, driverLng: number, maxDistanceKm = 10
     const order_offer = await this.orderOffer_repo.findOne({
       where: { order_id: id, status: OfferStatus.ACCEPTED },
     });
-    const chat=await this.chatRepo.findOne({
-      where:{
-        client_id:order.user_id, 
-        driver_id:order.driver_id
-    
-      }
-    }) 
-   
+    const chat = await this.chatRepo.findOne({
+      where: {
+        client_id: order.user_id,
+        driver_id: order.driver_id,
+      },
+    });
+
     return {
       ...order,
       offer: order_offer,
@@ -291,16 +289,23 @@ async findNearbyDrivers(driverLat: number, driverLng: number, maxDistanceKm = 10
     });
   }
 
-  async cancelOffer(id: string) {
-    return await this.dataSource.transaction(async (manager) => {
-      const offer = await manager.findOne(this.orderOffer_repo.target, {
-        where: { order_id: id },
-      });
-      if (!offer) throw new Error('Offer not found');
-await manager.remove(offer)
-      return offer;
+async cancelOffer(id: string) {
+  return await this.dataSource.transaction(async (manager) => {
+    const offer = await manager.findOne(this.orderOffer_repo.target, {
+      where: { order_id: id },
     });
-  }
+    if (!offer) throw new Error('Offer not found');
+
+    // Make a copy of the offer before removing
+    const deletedOffer = { ...offer };
+
+    await manager.remove(offer);
+
+    // Return the deleted offer data
+    return deletedOffer;
+  });
+}
+
 
   async cancelOrder(id: string) {
     return await this.dataSource.transaction(async (manager) => {
