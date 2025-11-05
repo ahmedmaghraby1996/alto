@@ -291,8 +291,11 @@ export class OrderService extends BaseService<Order> {
 
 async cancelOffer(id: string) {
   return await this.dataSource.transaction(async (manager) => {
+    const driver = await manager.findOne(this.driver_repo.target, {
+      where: { user_id: this.request.user.id },
+    })
     const offer = await manager.findOne(this.orderOffer_repo.target, {
-      where: { order_id: id },
+      where: { order_id: id, status: OfferStatus.PENDING , driver_id: driver.id },
     });
     if (!offer) throw new Error('Offer not found');
 
