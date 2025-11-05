@@ -207,6 +207,7 @@ export class OrderController {
     console.log(cancelOffer);
     try {
       const offer = await this.getOfferDetails(cancelOffer.id);
+      console.log(offer);
       this.orderGateway.server.emit(
         'cancel-offer-' + offer.data.order.user_id,
         offer,
