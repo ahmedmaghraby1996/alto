@@ -204,6 +204,7 @@ export class OrderController {
   @Post('cancel-offer/:id')
   async cancel(@Param('id') id: string) {
     const cancelOffer = await this.orderService.cancelOffer(id);
+    console.log(cancelOffer);
     try {
       const offer = await this.getOfferDetails(cancelOffer.id);
       this.orderGateway.server.emit(
