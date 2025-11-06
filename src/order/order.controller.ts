@@ -191,12 +191,10 @@ export class OrderController {
     try {
       const detailedOrder = await this.getOrder(cancelOrder.id);
 
-      this.orderGateway.server.emit(
-        'order-cancel' ,
-        detailedOrder,
-      );
-
-    } catch (err) { console.log(err)}
+      this.orderGateway.server.emit('order-cancel', detailedOrder);
+    } catch (err) {
+      console.log(err);
+    }
     return new ActionResponse(cancelOrder);
   }
 
@@ -310,7 +308,9 @@ export class OrderController {
           user_id: offerDetails.data.order.user_id,
         }),
       );
-    } catch (err) {console.log(err)}
+    } catch (err) {
+      console.log(err);
+    }
     return new ActionResponse(offer);
   }
 

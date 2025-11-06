@@ -46,6 +46,7 @@ export class OrderService extends BaseService<Order> {
     const order = plainToInstance(Order, dto);
     const now = Date.now(); // current timestamp
     const random = Math.floor(1000 + Math.random() * 9000);
+
     return this.order_repo.save({
       ...order,
       package_type_id: dto.package_type_id,
@@ -272,6 +273,13 @@ export class OrderService extends BaseService<Order> {
 
       order.status = OrderStatus.ACCEPTED;
       order.driver_id = offer.driver_id;
+      const chat = await manager.save(
+        this.chatRepo.create({
+          client_id: order.user_id,
+          driver_id: order.driver_id,
+        }),
+      );
+      order.chat_id = chat.id;
 
       await manager.save(order);
       return await manager.save(offer);
@@ -289,26 +297,29 @@ export class OrderService extends BaseService<Order> {
     });
   }
 
-async cancelOffer(id: string) {
-  return await this.dataSource.transaction(async (manager) => {
-    const driver = await manager.findOne(this.driver_repo.target, {
-      where: { user_id: this.request.user.id },
-    })
-    const offer = await manager.findOne(this.orderOffer_repo.target, {
-      where: { order_id: id, status: OfferStatus.PENDING , driver_id: driver.id },
+  async cancelOffer(id: string) {
+    return await this.dataSource.transaction(async (manager) => {
+      const driver = await manager.findOne(this.driver_repo.target, {
+        where: { user_id: this.request.user.id },
+      });
+      const offer = await manager.findOne(this.orderOffer_repo.target, {
+        where: {
+          order_id: id,
+          status: OfferStatus.PENDING,
+          driver_id: driver.id,
+        },
+      });
+      if (!offer) throw new Error('Offer not found');
+
+      // Make a copy of the offer before removing
+      const deletedOffer = { ...offer };
+
+      await manager.softRemove(offer);
+
+      // Return the deleted offer data
+      return deletedOffer;
     });
-    if (!offer) throw new Error('Offer not found');
-
-    // Make a copy of the offer before removing
-    const deletedOffer = { ...offer };
-
-    await manager.softRemove(offer);
-
-    // Return the deleted offer data
-    return deletedOffer;
-  });
-}
-
+  }
 
   async cancelOrder(id: string) {
     return await this.dataSource.transaction(async (manager) => {
