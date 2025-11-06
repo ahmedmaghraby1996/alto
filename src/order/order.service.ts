@@ -270,9 +270,9 @@ export class OrderService extends BaseService<Order> {
         where: { id: offer.order_id },
       });
       if (!order) throw new Error('Order not found');
-const driver = await manager.findOne(this.driver_repo.target, {
-  where: { id: offer.driver_id },
-})
+      const driver = await manager.findOne(this.driver_repo.target, {
+        where: { id: offer.driver_id },
+      });
       order.status = OrderStatus.ACCEPTED;
       order.driver_id = offer.driver_id;
       const chat = await manager.save(

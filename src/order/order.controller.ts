@@ -39,6 +39,7 @@ import { NotificationService } from 'src/modules/notification/services/notificat
 import { NotificationEntity } from 'src/infrastructure/entities/notification/notification.entity';
 import { SendToUsersNotificationRequest } from 'src/modules/notification/dto/requests/send-to-users-notification.request';
 import { off } from 'process';
+import { NotificationTypes } from 'src/infrastructure/data/enums/notification-types.enum';
 @ApiTags('Order')
 @ApiHeader({
   name: 'Accept-Language',
@@ -89,6 +90,7 @@ export class OrderController {
             message_en: 'You have a new order',
             title_ar: 'طلب جديد',
             title_en: 'New Order',
+            
           }),
         );
       } catch (err) {
@@ -155,6 +157,7 @@ export class OrderController {
           title_ar: 'تم قبول العرض',
           title_en: 'Offer accepted',
           user_id: offer.data.Driver.user_id,
+          type: NotificationTypes.OFFER_ACCEPTED,
         }),
       );
     } catch (err) {}
@@ -178,6 +181,7 @@ export class OrderController {
           title_ar: 'تم رفض العرض',
           title_en: 'Offer rejected',
           user_id: offer.data.Driver.user_id,
+          type: NotificationTypes.OFFER_REJECTED,
         }),
       );
     } catch (err) {}
@@ -191,10 +195,12 @@ export class OrderController {
     try {
       const detailedOrder = await this.getOrder(cancelOrder.id);
 
-      this.orderGateway.server.emit('order-cancel', detailedOrder);
-    } catch (err) {
-      console.log(err);
-    }
+      this.orderGateway.server.emit(
+        'order-cancel' ,
+        detailedOrder,
+      );
+
+    } catch (err) { console.log(err)}
     return new ActionResponse(cancelOrder);
   }
 
@@ -202,10 +208,10 @@ export class OrderController {
   @Post('cancel-offer/:id')
   async cancel(@Param('id') id: string) {
     const cancelOffer = await this.orderService.cancelOffer(id);
-    console.log(cancelOffer);
+   
     try {
       const offer = await this.getOfferDetails(cancelOffer.id);
-      console.log(offer);
+      
       this.orderGateway.server.emit(
         'cancel-offer-' + offer.data.order.user_id,
         offer,
@@ -232,6 +238,7 @@ export class OrderController {
           text_ar: 'تم استلام الطلب',
           text_en: 'Order picked up',
           user_id: pickedOrder.user_id,
+          type: NotificationTypes.ORDER_PICKED_UP,
         }),
       );
     } catch (err) {}
@@ -255,6 +262,7 @@ export class OrderController {
           text_ar: 'تم تسليم الطلب',
           text_en: 'Order delivered',
           user_id: deliveredOrder.user_id,
+          type: NotificationTypes.ORDER_DELIVERED,
         }),
       );
     } catch (err) {}
@@ -306,11 +314,10 @@ export class OrderController {
           text_ar: 'تم انشاء عرض جديد',
           text_en: 'New offer created',
           user_id: offerDetails.data.order.user_id,
+          type: NotificationTypes.NEW_OFFER,
         }),
       );
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {console.log(err)}
     return new ActionResponse(offer);
   }
 
