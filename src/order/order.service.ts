@@ -276,7 +276,7 @@ export class OrderService extends BaseService<Order> {
       const chat = await manager.save(
         this.chatRepo.create({
           client_id: order.user_id,
-          driver_id: order.driver_id,
+          driver_id: this.request.user.id,
         }),
       );
       order.chat_id = chat.id;
