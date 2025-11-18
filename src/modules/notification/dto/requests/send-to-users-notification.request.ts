@@ -16,6 +16,11 @@ export class SendToUsersNotificationRequest {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
+  type: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
   message_en: string;
 
   @ApiProperty()

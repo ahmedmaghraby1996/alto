@@ -90,6 +90,7 @@ export class OrderController {
             message_en: 'You have a new order',
             title_ar: 'طلب جديد',
             title_en: 'New Order',
+            type: NotificationTypes.NEW_ORDER,
             
           }),
         );
