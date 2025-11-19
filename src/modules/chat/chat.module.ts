@@ -5,9 +5,10 @@ import { Message } from "src/infrastructure/entities/chat/messages.entity";
 import { ChatController } from "./chat.controller";
 import { ChatService } from "./chat.service";
 import { ChatGateway } from "src/integration/gateways/chat.gateway";
+import { NotificationModule } from "../notification/notification.module";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Chat, Message])],
+  imports: [TypeOrmModule.forFeature([Chat, Message]),NotificationModule],
   controllers: [ChatController],
   providers: [ChatService,ChatGateway],
 })
