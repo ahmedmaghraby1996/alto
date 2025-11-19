@@ -16,7 +16,9 @@ import { MessageRespone } from './dto/message.response';
 import { Order } from 'src/infrastructure/entities/order/order.entity';
 import { BaseUserService } from 'src/core/base/service/user-service.base';
 import { BaseService } from 'src/core/base/service/service.base';
-
+import { NotificationService } from '../notification/services/notification.service';
+import { NotificationTypes } from 'src/infrastructure/data/enums/notification-types.enum';
+import { NotificationEntity } from 'src/infrastructure/entities/notification/notification.entity';
 
 @Injectable()
 export class ChatService extends BaseService<Chat> {
@@ -27,53 +29,55 @@ export class ChatService extends BaseService<Chat> {
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(Order) private orderRepo: Repository<Order>,
     private readonly chatGateway: ChatGateway,
+    private readonly NotificationService: NotificationService,
   ) {
-    super( chatRepo);
+    super(chatRepo);
   }
-// 
-async startChat(order_id: string): Promise<Chat> {
-  const clientId = this.request.user.id;
+  //
+  async startChat(order_id: string): Promise<Chat> {
+    const clientId = this.request.user.id;
 
-  const order = await this.orderRepo.findOne({ where: { id: order_id }, relations: { driver: { user: true } } });
-  if (!order) {
-    throw new NotFoundException('Order not found');
+    const order = await this.orderRepo.findOne({
+      where: { id: order_id },
+      relations: { driver: { user: true } },
+    });
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+    if (!order.driver_id) {
+      throw new NotFoundException('Order has no driver yet');
+    }
+
+    // Check if chat already exists
+    const existing = await this.chatRepo.findOne({
+      where: { orders: { id: order_id } },
+      order: { created_at: 'DESC' },
+    });
+    if (existing) return existing;
+
+    // ✅ Create chat using raw IDs only
+    const newChat = this.chatRepo.create({
+      client_id: order.user_id,
+      driver_id: order.driver.user_id,
+    });
+
+    // Save the chat first
+    const savedChat = await this.chatRepo.save(newChat);
+
+    // Update order with chat_id
+    await this.orderRepo.update({ id: order_id }, { chat_id: savedChat.id });
+
+    return savedChat;
   }
-  if (!order.driver_id) {
-    throw new NotFoundException('Order has no driver yet');
-  }
-
-  // Check if chat already exists
-  const existing = await this.chatRepo.findOne({
-    where: { orders: { id: order_id } ,},order: { created_at: "DESC" },
-  });
-  if (existing) return existing;
-
-  // ✅ Create chat using raw IDs only
-  const newChat = this.chatRepo.create({
-    client_id: order.user_id,
-    driver_id: order.driver.user_id,
-  });
-
-  // Save the chat first
-  const savedChat = await this.chatRepo.save(newChat);
-
-  // Update order with chat_id
-  await this.orderRepo.update({ id: order_id }, { chat_id: savedChat.id });
-
-  return savedChat;
-}
-
 
   async sendMessage(order_id: string, content: string): Promise<Message> {
- const start_chat=   await this.startChat(order_id);
-
+    const start_chat = await this.startChat(order_id);
 
     const senderId = this.request.user.id;
     const message = this.msgRepo.create({
       chat_id: start_chat.id,
       sender_id: senderId,
       content,
-      
     });
 
     await this.msgRepo.save(message);
@@ -81,63 +85,82 @@ async startChat(order_id: string): Promise<Chat> {
       where: { id: start_chat.id },
       relations: {},
     });
-        this.chatGateway.server.emit(
-      'new-message-' + start_chat.id ,
-      plainToInstance(MessageRespone, {...message, sender: this.request.user}, {
-        excludeExtraneousValues: true,
-      }),
+    try {
+      this.chatGateway.server.emit(
+        'new-message-' + start_chat.id,
+        plainToInstance(
+          MessageRespone,
+          { ...message, sender: this.request.user },
+          {
+            excludeExtraneousValues: true,
+          },
+        ),
+      );
+      await this.NotificationService.create(new NotificationEntity( {
+        user_id:
+          senderId === chat.client_id ? chat.driver_id : chat.client_id,
+        title_ar: 'New message',
+        title_en: 'New message',
+        text_ar: message.content,
+        text_en: message.content,
+        type: NotificationTypes.CHAT_MESSAGE,
+      }));
+    } catch (err) {
+      console.log('Error emitting message:', err);
+    }
+    await this.chatRepo.update(
+      { id: start_chat.id },
+      { last_message_id: message.id },
     );
-    await this.chatRepo.update({id:start_chat.id},{last_message_id:message.id})
     return message;
   }
 
-async getMessages(
-  chatId: string,
-  page = 1,
-  limit = 20,
-): Promise<{ items: Message[]; total: number }> {
-  // Mark unseen messages as seen
-  await this.msgRepo.update(
-    { chat_id: chatId, is_seen: false },
-    { is_seen: true },
-  );
+  async getMessages(
+    chatId: string,
+    page = 1,
+    limit = 20,
+  ): Promise<{ items: Message[]; total: number }> {
+    // Mark unseen messages as seen
+    await this.msgRepo.update(
+      { chat_id: chatId, is_seen: false },
+      { is_seen: true },
+    );
 
-  // Fetch messages with pagination
-  const [items, total] = await this.msgRepo.findAndCount({
-    where: { chat: { id: chatId } },
-    relations: ['sender',],
-    order: { created_at: 'desc' },
-    skip: (page - 1) * limit,
-    take: limit,
-  });
+    // Fetch messages with pagination
+    const [items, total] = await this.msgRepo.findAndCount({
+      where: { chat: { id: chatId } },
+      relations: ['sender'],
+      order: { created_at: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
 
-  return { items, total };
-}
-
+    return { items, total };
+  }
 
   // chat.service.ts (continued)
-async getUserChats(
-  page = 1,
-  limit = 20,
-): Promise<{ items: Chat[]; total: number }> {
-  const roles = this.request.user.roles;
-  const userId = this.request.user.id;
+  async getUserChats(
+    page = 1,
+    limit = 20,
+  ): Promise<{ items: Chat[]; total: number }> {
+    const roles = this.request.user.roles;
+    const userId = this.request.user.id;
 
-  const roleColumn = roles.includes(Role.CLIENT)
-    ? 'client_id'
-    : 'driver_id';
+    const roleColumn = roles.includes(Role.CLIENT) ? 'client_id' : 'driver_id';
 
-  const [chats, total] = await this.chatRepo.findAndCount({
-    where: { [roleColumn]: userId },
-    relations: {client: true, driver: true, last_message: true,orders: true},// load relations you need
-    order: { created_at: "DESC" ,orders: { created_at: "DESC" }}, // sort by last_message
-    skip: (page - 1) * limit,
-    take: limit,
-  });
+    const [chats, total] = await this.chatRepo.findAndCount({
+      where: { [roleColumn]: userId },
+      relations: {
+        client: true,
+        driver: true,
+        last_message: true,
+        orders: true,
+      }, // load relations you need
+      order: { created_at: 'DESC', orders: { created_at: 'DESC' } }, // sort by last_message
+      skip: (page - 1) * limit,
+      take: limit,
+    });
 
-  return { items: chats, total };
-}
-
-
-
+    return { items: chats, total };
+  }
 }

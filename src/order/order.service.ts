@@ -295,7 +295,8 @@ export class OrderService extends BaseService<Order> {
       });
       if (!offer) throw new Error('Offer not found');
       offer.status = OfferStatus.REJECTED;
-      return await manager.save(offer);
+
+      return await manager.softRemove(offer);
     });
   }
 

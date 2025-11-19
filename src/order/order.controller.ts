@@ -157,7 +157,7 @@ export class OrderController {
           text_en: 'Offer accepted',
           title_ar: 'تم قبول العرض',
           title_en: 'Offer accepted',
-          user_id: offer.data.Driver.user_id,
+          user_id: offer.data.Driver.id,
           type: NotificationTypes.OFFER_ACCEPTED,
         }),
       );
@@ -181,7 +181,7 @@ export class OrderController {
           text_en: 'Offer rejected',
           title_ar: 'تم رفض العرض',
           title_en: 'Offer rejected',
-          user_id: offer.data.Driver.user_id,
+          user_id: offer.data.Driver.id,
           type: NotificationTypes.OFFER_REJECTED,
         }),
       );
