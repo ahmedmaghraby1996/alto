@@ -75,8 +75,11 @@ export class OrderController {
       try {
         const detailedOrder = await this.getOrder(createdOrder.id);
         const driverUserIds = await this.orderService.findNearbyDrivers(
-          createdOrder.pickup_latitude,
-          createdOrder.pickup_longitude,
+          req.pickup_latitude,
+          req.pickup_longitude,
+          req.truck_type_id,
+          req.needs_cooling,
+          req.needs_freezing,
         );
 
         driverUserIds.forEach((userId) => {

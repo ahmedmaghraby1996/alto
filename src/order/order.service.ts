@@ -157,14 +157,17 @@ export class OrderService extends BaseService<Order> {
   }
 
   async findNearbyDrivers(
-    driverLat: number,
-    driverLng: number,
+    orderLat: number,
+    orderLng: number,
+    truckTypeId: string,
+    needsCooling: boolean,
+    needsFreezing: boolean,
     maxDistanceKm = 10,
   ) {
     const drivers = await this.driver_repo
       .createQueryBuilder('driver')
       .select(['driver.user_id']) // ✅ only select user_id
-      // .where('driver.is_available = true')
+      // ✅ Distance filter - same as getDriverOffers
       .where(
         `
       (
@@ -178,9 +181,27 @@ export class OrderService extends BaseService<Order> {
       ) <= :radius
       `,
         {
-          lat: driverLat,
-          lng: driverLng,
+          lat: orderLat,
+          lng: orderLng,
           radius: maxDistanceKm,
+        },
+      )
+      // ✅ Only include drivers that match the order's vehicle type - same as getDriverOffers
+      .andWhere('driver.vehicle_type_id = :truckTypeId', {
+        truckTypeId: truckTypeId,
+      })
+      // ✅ Cooling / Freezing logic - same as getDriverOffers
+      .andWhere(
+        `
+      (
+        (:needsCooling = false AND :needsFreezing = false)
+        OR (:needsCooling = true AND driver.vehicle_has_cooling = true)
+        OR (:needsFreezing = true AND driver.vehicle_has_freezing = true)
+      )
+      `,
+        {
+          needsCooling: needsCooling,
+          needsFreezing: needsFreezing,
         },
       )
       .orderBy(
